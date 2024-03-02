@@ -68,10 +68,10 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	UFUNCTION(BlueprintCallable)
-	bool IsWalking();
+	UFUNCTION(BlueprintPure)
+	bool IsWalking() const;
 
-	UFUNCTION(BlueprintCallable)
-	bool IsRunning();
+	UFUNCTION(BlueprintPure)
+	bool IsRunning() const;
 };
 

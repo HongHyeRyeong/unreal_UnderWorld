@@ -168,12 +168,12 @@ void AUnderWorldCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-bool AUnderWorldCharacter::IsWalking()
+bool AUnderWorldCharacter::IsWalking() const
 {
 	return GetCharacterMovement()->Velocity.Length() > 0;
 }
 
-bool AUnderWorldCharacter::IsRunning()
+bool AUnderWorldCharacter::IsRunning() const
 {
 	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed;
 }
