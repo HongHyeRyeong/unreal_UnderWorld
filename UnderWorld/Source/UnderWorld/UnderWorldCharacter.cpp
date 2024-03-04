@@ -95,7 +95,7 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Character Stamina :: %f"), Stamina);
+	//UE_LOG(LogTemp, Log, TEXT("Character Stamina :: %f"), Stamina);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -106,14 +106,28 @@ void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUnderWorldCharacter::Look);
 		EnhancedInputComponent->BindAction(WalkAction, ETriggerEvent::Triggered, this, &AUnderWorldCharacter::Walk);
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Run);
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AUnderWorldCharacter::Run);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUnderWorldCharacter::Look);
+		EnhancedInputComponent->BindAction(ItemPickAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::ItemPick);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
+
+void AUnderWorldCharacter::Look(const FInputActionValue& Value)
+{
+	// input is a Vector2D
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		// add yaw and pitch input to controller
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
 
@@ -155,17 +169,9 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::Look(const FInputActionValue& Value)
+void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
+	Inventory->InputItemPick();
 }
 
 bool AUnderWorldCharacter::IsWalking() const
@@ -176,4 +182,14 @@ bool AUnderWorldCharacter::IsWalking() const
 bool AUnderWorldCharacter::IsRunning() const
 {
 	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed;
+}
+
+void AUnderWorldCharacter::ItemBeginOverlap(AItemBase* item)
+{
+	Inventory->ItemBeginOverlap(item);
+}
+
+void AUnderWorldCharacter::ItemEndOverlap(AItemBase* item)
+{
+	Inventory->ItemEndOverlap(item);
 }

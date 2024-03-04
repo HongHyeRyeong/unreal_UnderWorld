@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "ItemBase.h"
 #include "UnderWorldCharacter.generated.h"
 
 class USpringArmComponent;
@@ -30,22 +32,28 @@ class AUnderWorldCharacter : public ACharacter
 	UInputMappingContext* DefaultMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* WalkAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* RunAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookAction;
+	UInputAction* ItemPickAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	UInventoryComponent* Inventory;
 
 public:
 	AUnderWorldCharacter();
 
 protected:
-
+	void Look(const FInputActionValue& Value);
 	void Walk(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
+	void ItemPick(const FInputActionValue& Value);
 
 	const int WalkSpeed = 500;
 	const int RunSpeed = 700;
@@ -53,19 +61,13 @@ protected:
 	const float MaxStamina = 100;
 	float Stamina = MaxStamina;
 
-protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	// To add mapping context
+protected:	
 	virtual void BeginPlay();
-
 	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	UFUNCTION(BlueprintPure)
@@ -73,5 +75,10 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsRunning() const;
-};
 
+	UFUNCTION(BlueprintCallable)
+	void ItemBeginOverlap(AItemBase* item);
+
+	UFUNCTION(BlueprintCallable)
+	void ItemEndOverlap(AItemBase* item);
+};
