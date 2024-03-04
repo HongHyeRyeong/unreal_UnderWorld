@@ -184,12 +184,12 @@ bool AUnderWorldCharacter::IsRunning() const
 	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed;
 }
 
-void AUnderWorldCharacter::ItemBeginOverlap(AItemBase* item)
+void AUnderWorldCharacter::ItemBeginOverlap()
 {
-	Inventory->ItemBeginOverlap(item);
+	Inventory->ItemBeginOverlap();
 }
 
-void AUnderWorldCharacter::ItemEndOverlap(AItemBase* item)
+void AUnderWorldCharacter::ItemEndOverlap()
 {
-	Inventory->ItemEndOverlap(item);
+	Inventory->ItemEndOverlap();
 }

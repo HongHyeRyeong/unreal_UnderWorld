@@ -77,8 +77,8 @@ public:
 	bool IsRunning() const;
 
 	UFUNCTION(BlueprintCallable)
-	void ItemBeginOverlap(AItemBase* item);
+	void ItemBeginOverlap();
 
 	UFUNCTION(BlueprintCallable)
-	void ItemEndOverlap(AItemBase* item);
+	void ItemEndOverlap();
 };
