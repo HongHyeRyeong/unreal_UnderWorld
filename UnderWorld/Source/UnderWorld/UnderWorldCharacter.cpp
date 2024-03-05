@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "InventoryComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -20,7 +21,7 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -52,6 +53,8 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Item Inventory"));
 }
 
 void AUnderWorldCharacter::BeginPlay()
@@ -171,7 +174,8 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 
 void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
-	Inventory->InputItemPick();
+	UE_LOG(LogTemp, Log, TEXT("AUnderWorldCharacter InputItemPick")); 
+	InventoryComponent->InputItemPick();
 }
 
 bool AUnderWorldCharacter::IsWalking() const
@@ -182,14 +186,4 @@ bool AUnderWorldCharacter::IsWalking() const
 bool AUnderWorldCharacter::IsRunning() const
 {
 	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed;
-}
-
-void AUnderWorldCharacter::ItemBeginOverlap()
-{
-	Inventory->ItemBeginOverlap();
-}
-
-void AUnderWorldCharacter::ItemEndOverlap()
-{
-	Inventory->ItemEndOverlap();
 }

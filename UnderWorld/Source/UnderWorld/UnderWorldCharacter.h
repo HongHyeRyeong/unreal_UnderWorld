@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "ItemBase.h"
@@ -11,6 +10,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class UInventoryComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
@@ -43,9 +43,6 @@ class AUnderWorldCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ItemPickAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
-	UInventoryComponent* Inventory;
-
 public:
 	AUnderWorldCharacter();
 
@@ -70,15 +67,12 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UInventoryComponent* InventoryComponent;
+
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;
 
 	UFUNCTION(BlueprintPure)
 	bool IsRunning() const;
-
-	UFUNCTION(BlueprintCallable)
-	void ItemBeginOverlap();
-
-	UFUNCTION(BlueprintCallable)
-	void ItemEndOverlap();
 };

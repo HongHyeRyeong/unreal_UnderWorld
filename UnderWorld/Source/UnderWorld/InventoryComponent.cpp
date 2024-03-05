@@ -1,5 +1,6 @@
 #include "InventoryComponent.h"
 #include "Logging/LogMacros.h"
+#include "algorithm"
 
 UInventoryComponent::UInventoryComponent()
 {
@@ -7,15 +8,29 @@ UInventoryComponent::UInventoryComponent()
 
 void UInventoryComponent::InputItemPick()
 {
-		UE_LOG(LogTemp, Log, TEXT("Character ItemPick"));
+	UE_LOG(LogTemp, Log, TEXT("Character InputItemPick %d"), pickItemArray.Num());
+
+	if (pickItemArray.Num() > 0)
+	{
+		AItemBase* item = pickItemArray[0];
+		pickItemArray.RemoveAt(0);
+
+		item->Destroy();
+
+		UE_LOG(LogTemp, Log, TEXT("Character InputItemPick 2 %d"), pickItemArray.Num());
+	}
 }
 
-void UInventoryComponent::ItemBeginOverlap()
+void UInventoryComponent::ItemBeginOverlap(AItemBase* item)
 {
-		UE_LOG(LogTemp, Log, TEXT("Character ItemBeginOverlap "));
+	pickItemArray.Add(item);
+
+	UE_LOG(LogTemp, Log, TEXT("Character ItemBeginOverlap %d"), pickItemArray.Num());
 }
 
-void UInventoryComponent::ItemEndOverlap()
+void UInventoryComponent::ItemEndOverlap(AItemBase* item)
 {
-	UE_LOG(LogTemp, Log, TEXT("Character ItemEndOverlap "));
+	pickItemArray.Remove(item);
+
+	UE_LOG(LogTemp, Log, TEXT("Character ItemEndOverlap %d"), pickItemArray.Num());
 }

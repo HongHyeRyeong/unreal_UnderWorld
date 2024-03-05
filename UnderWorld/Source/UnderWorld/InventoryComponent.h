@@ -18,9 +18,9 @@ public:
 
 public:	
 	void InputItemPick();
-	void ItemBeginOverlap();
-	void ItemEndOverlap();
+	void ItemBeginOverlap(AItemBase* item);
+	void ItemEndOverlap(AItemBase* item);
 
 private:
-	AItemBase* pickItem;
+	TArray<AItemBase*> pickItemArray;
 };
