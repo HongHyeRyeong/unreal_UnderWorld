@@ -14,7 +14,8 @@ enum class EItemType : uint8
 	E_Coat UMETA(DisplayName = "Coat"),
 	E_Bag UMETA(DisplayName = "Bag"),
 	E_Key UMETA(DisplayName = "Key"),
-	E_Gadget UMETA(DisplayName = "Gadget")
+	E_Gadget UMETA(DisplayName = "Gadget"),
+	E_Max UMETA(DisplayName = "Max")
 };
 
 UCLASS()
@@ -27,6 +28,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	EItemType itemType;
+
+	UPROPERTY(EditAnywhere)
+	int level;
 
 protected:
 	UPROPERTY(Category = Collision, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

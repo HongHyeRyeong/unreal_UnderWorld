@@ -1,36 +1,69 @@
 #include "InventoryComponent.h"
 #include "Logging/LogMacros.h"
-#include "algorithm"
+#include "ItemBase.h"
 
 UInventoryComponent::UInventoryComponent()
 {
+	keyMaxCount = 2;
+	GadgetMaxCount = 3;
 }
 
-void UInventoryComponent::InputItemPick()
+void UInventoryComponent::ItemPickInput()
 {
-	UE_LOG(LogTemp, Log, TEXT("Character InputItemPick %d"), pickItemArray.Num());
-
-	if (pickItemArray.Num() > 0)
+	if (itemOverlapArray.Num() > 0)
 	{
-		AItemBase* item = pickItemArray[0];
-		pickItemArray.RemoveAt(0);
+		bool pick = false;
+		AItemBase* item = itemOverlapArray[0];
 
-		item->Destroy();
+		switch (item->itemType)
+		{
+		case EItemType::E_Hat:
+		case EItemType::E_Coat:
+		case EItemType::E_Bag:
+		{
+			pick = true;
+			Item temp(item->level, 1);
+			itemPickMap.Add(item->itemType, temp);
+			break;
+		}
+		case EItemType::E_Key:
+		case EItemType::E_Gadget:
+		{
+			int maxCount = item->itemType == EItemType::E_Key ? keyMaxCount : GadgetMaxCount;
 
-		UE_LOG(LogTemp, Log, TEXT("Character InputItemPick 2 %d"), pickItemArray.Num());
+			if (itemPickMap.Contains(item->itemType))
+			{
+				Item* temp = itemPickMap.Find(item->itemType);
+				if (temp->count < maxCount)
+				{
+					pick = true;
+					temp->count++;
+				}
+			}
+			else
+			{
+				pick = true;
+				Item temp(1, 1);
+				itemPickMap.Add(item->itemType, temp);
+			}
+			break;
+		}
+		}
+
+		if (pick)
+		{
+			itemOverlapArray.RemoveAt(0);
+			item->Destroy();
+		}
 	}
 }
 
 void UInventoryComponent::ItemBeginOverlap(AItemBase* item)
 {
-	pickItemArray.Add(item);
-
-	UE_LOG(LogTemp, Log, TEXT("Character ItemBeginOverlap %d"), pickItemArray.Num());
+	itemOverlapArray.Add(item);
 }
 
 void UInventoryComponent::ItemEndOverlap(AItemBase* item)
 {
-	pickItemArray.Remove(item);
-
-	UE_LOG(LogTemp, Log, TEXT("Character ItemEndOverlap %d"), pickItemArray.Num());
+	itemOverlapArray.Remove(item);
 }

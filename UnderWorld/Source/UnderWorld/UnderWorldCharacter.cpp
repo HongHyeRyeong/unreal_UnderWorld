@@ -175,7 +175,7 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("AUnderWorldCharacter InputItemPick")); 
-	InventoryComponent->InputItemPick();
+	InventoryComponent->ItemPickInput();
 }
 
 bool AUnderWorldCharacter::IsWalking() const
