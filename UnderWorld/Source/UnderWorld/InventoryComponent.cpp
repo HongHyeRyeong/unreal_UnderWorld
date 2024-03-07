@@ -6,13 +6,34 @@ UInventoryComponent::UInventoryComponent()
 {
 	keyMaxCount = 2;
 	GadgetMaxCount = 3;
+
+	for (int i = 0; i < (int)EItemType::E_Max; ++i)
+	{
+		TArray<Item> items;
+
+		switch ((EItemType)i)
+		{
+		case EItemType::E_Key:
+		case EItemType::E_Gadget:
+		{
+			Item item(0, 0);
+			items.Add(item);
+			break;
+		}
+		}
+
+		itemPickMap.Add((EItemType)i, items);
+	}
 }
 
-void UInventoryComponent::ItemPickInput()
+bool UInventoryComponent::ItemPickInput()
 {
+	if (character->IsWalking())
+		return false;
+
+	bool pick = false;
 	if (itemOverlapArray.Num() > 0)
 	{
-		bool pick = false;
 		AItemBase* item = itemOverlapArray[0];
 
 		switch (item->itemType)
@@ -23,28 +44,24 @@ void UInventoryComponent::ItemPickInput()
 		{
 			pick = true;
 			Item temp(item->level, 1);
-			itemPickMap.Add(item->itemType, temp);
+			itemPickMap[item->itemType].Add(temp);
 			break;
 		}
 		case EItemType::E_Key:
-		case EItemType::E_Gadget:
 		{
-			int maxCount = item->itemType == EItemType::E_Key ? keyMaxCount : GadgetMaxCount;
-
-			if (itemPickMap.Contains(item->itemType))
-			{
-				Item* temp = itemPickMap.Find(item->itemType);
-				if (temp->count < maxCount)
-				{
-					pick = true;
-					temp->count++;
-				}
-			}
-			else
+			if (itemPickMap[item->itemType][0].count < keyMaxCount)
 			{
 				pick = true;
-				Item temp(1, 1);
-				itemPickMap.Add(item->itemType, temp);
+				itemPickMap[item->itemType][0].count++;
+			}
+			break;
+		}
+		case EItemType::E_Gadget:
+		{
+			if (itemPickMap[item->itemType][0].count < GadgetMaxCount)
+			{
+				pick = true;
+				itemPickMap[item->itemType][0].count++;
 			}
 			break;
 		}
@@ -56,6 +73,8 @@ void UInventoryComponent::ItemPickInput()
 			item->Destroy();
 		}
 	}
+
+	return pick;
 }
 
 void UInventoryComponent::ItemBeginOverlap(AItemBase* item)

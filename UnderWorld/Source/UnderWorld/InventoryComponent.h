@@ -5,15 +5,14 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "ItemBase.h"
+#include "UnderWorldCharacter.h"
 #include "InventoryComponent.generated.h"
 
-struct Item { 
+struct Item {
 	int level;
 	int count;
 
-	Item(int level, int count):level(level), count(count)
-	{
-	}
+	Item(int level, int count) :level(level), count(count) {};
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -29,12 +28,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Item")
 	int GadgetMaxCount;
 
+	AUnderWorldCharacter* character;
+
 public:	
-	void ItemPickInput();
+	bool ItemPickInput();
 	void ItemBeginOverlap(AItemBase* item);
 	void ItemEndOverlap(AItemBase* item);
 
 private:
 	TArray<AItemBase*> itemOverlapArray;
-	TMap<EItemType, Item> itemPickMap;
+	TMap<EItemType, TArray<Item>> itemPickMap;
 };

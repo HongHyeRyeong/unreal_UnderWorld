@@ -55,6 +55,7 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Item Inventory"));
+	InventoryComponent->character = this;
 }
 
 void AUnderWorldCharacter::BeginPlay()
@@ -101,9 +102,6 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 	//UE_LOG(LogTemp, Log, TEXT("Character Stamina :: %f"), Stamina);
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
-
 void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
@@ -136,22 +134,15 @@ void AUnderWorldCharacter::Look(const FInputActionValue& Value)
 
 void AUnderWorldCharacter::Walk(const FInputActionValue& Value)
 {
-	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
+	if (Move && Controller != nullptr)
 	{
-		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
@@ -174,8 +165,11 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 
 void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("AUnderWorldCharacter InputItemPick")); 
-	InventoryComponent->ItemPickInput();
+	if (InventoryComponent->ItemPickInput()) 
+	{
+		Move = false;
+		OnitemPick.Broadcast();
+	}
 }
 
 bool AUnderWorldCharacter::IsWalking() const
@@ -186,4 +180,11 @@ bool AUnderWorldCharacter::IsWalking() const
 bool AUnderWorldCharacter::IsRunning() const
 {
 	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed;
+}
+
+void AUnderWorldCharacter::CanMove()
+{
+	Move = true;	
+	
+	UE_LOG(LogTemplateCharacter, Log, TEXT("CanMove"));
 }

@@ -16,6 +16,7 @@ class UInputAction;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKFOnitemPick);
 
 UCLASS(config=Game)
 class AUnderWorldCharacter : public ACharacter
@@ -47,6 +48,10 @@ public:
 	AUnderWorldCharacter();
 
 protected:
+	virtual void BeginPlay();
+	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 	void Look(const FInputActionValue& Value);
 	void Walk(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
@@ -54,14 +59,10 @@ protected:
 
 	const int WalkSpeed = 500;
 	const int RunSpeed = 700;
+	bool Move = true;
 
 	const float MaxStamina = 100;
 	float Stamina = MaxStamina;
-
-protected:	
-	virtual void BeginPlay();
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -70,9 +71,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
 
+	UPROPERTY(BlueprintAssignable)
+	FKFOnitemPick OnitemPick;
+
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;
 
 	UFUNCTION(BlueprintPure)
 	bool IsRunning() const;
+
+	UFUNCTION(BlueprintCallable)
+	void CanMove();
 };
