@@ -16,7 +16,7 @@ class UInputAction;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKFOnitemPick);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FXFCallBack);
 
 UCLASS(config=Game)
 class AUnderWorldCharacter : public ACharacter
@@ -44,6 +44,18 @@ class AUnderWorldCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ItemPickAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MachineInstallAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FXFCallBack OnitemPick;
+
+	UPROPERTY(BlueprintAssignable)
+	FXFCallBack OnBeginMachineInstall;
+
+	UPROPERTY(BlueprintAssignable)
+	FXFCallBack OnEndMachineInstall;
+
 public:
 	AUnderWorldCharacter();
 
@@ -56,6 +68,7 @@ protected:
 	void Walk(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
 	void ItemPick(const FInputActionValue& Value);
+	void MachineInstall(const FInputActionValue& Value);
 
 	const int WalkSpeed = 500;
 	const int RunSpeed = 700;
@@ -71,18 +84,22 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ItemPutOn(EItemType type, int level);
 
-	UFUNCTION(BlueprintPure)
-	bool IsWalking() const;
-
-	UFUNCTION(BlueprintPure)
-	bool IsRunning() const;
-
 	UFUNCTION(BlueprintCallable)
 	void CanMove();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
 
-	UPROPERTY(BlueprintAssignable)
-	FKFOnitemPick OnitemPick;
+public:
+	UFUNCTION(BlueprintPure)
+	bool IsWalking() const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsRunning() const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsHaveGadget() const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsHaveKey() const;
 };

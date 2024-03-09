@@ -112,6 +112,8 @@ void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Run);
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AUnderWorldCharacter::Run);
 		EnhancedInputComponent->BindAction(ItemPickAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::ItemPick);
+		EnhancedInputComponent->BindAction(MachineInstallAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::MachineInstall);
+		EnhancedInputComponent->BindAction(MachineInstallAction, ETriggerEvent::Completed, this, &AUnderWorldCharacter::MachineInstall);
 	}
 	else
 	{
@@ -165,10 +167,24 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 
 void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
-	if (InventoryComponent->ItemPickInput()) 
+	if (InventoryComponent->ItemPickInput())
 	{
 		Move = false;
 		OnitemPick.Broadcast();
+	}
+}
+
+void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
+{
+	bool active = Value.Get<bool>();
+
+	if (active)
+	{
+		OnBeginMachineInstall.Broadcast();
+	}
+	else
+	{
+		OnEndMachineInstall.Broadcast();
 	}
 }
 
@@ -182,9 +198,17 @@ bool AUnderWorldCharacter::IsRunning() const
 	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed;
 }
 
+bool AUnderWorldCharacter::IsHaveGadget() const
+{
+	return InventoryComponent->IsHaveGadget();
+}
+
+bool AUnderWorldCharacter::IsHaveKey() const
+{
+	return InventoryComponent->IsHaveKey();
+}
+
 void AUnderWorldCharacter::CanMove()
 {
-	Move = true;	
-	
-	UE_LOG(LogTemplateCharacter, Log, TEXT("CanMove"));
+	Move = true;
 }

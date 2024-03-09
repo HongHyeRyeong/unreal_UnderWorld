@@ -27,6 +27,8 @@ public:
 	void ItemBeginOverlap(AItemBase* item);
 	void ItemEndOverlap(AItemBase* item);
 	bool ItemPickInput();
+	bool IsHaveGadget();
+	bool IsHaveKey();
 
 	UPROPERTY(BlueprintReadOnly, Category = "Item")
 	int keyMaxCount;

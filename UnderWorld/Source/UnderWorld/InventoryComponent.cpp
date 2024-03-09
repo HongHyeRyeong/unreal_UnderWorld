@@ -87,3 +87,13 @@ bool UInventoryComponent::ItemPickInput()
 
 	return pick;
 }
+
+bool UInventoryComponent::IsHaveGadget()
+{
+	return itemPickMap[EItemType::E_Gadget][0].count > 0;
+}
+
+bool UInventoryComponent::IsHaveKey()
+{
+	return itemPickMap[EItemType::E_Key][0].count > 0;
+}
