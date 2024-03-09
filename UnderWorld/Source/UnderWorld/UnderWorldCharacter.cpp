@@ -123,12 +123,10 @@ void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void AUnderWorldCharacter::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
-		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
@@ -138,7 +136,7 @@ void AUnderWorldCharacter::Walk(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (Move && Controller != nullptr)
+	if (IsAnimStateLand && Controller != nullptr)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -167,25 +165,17 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 
 void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
-	if (InventoryComponent->ItemPickInput())
+	if (InventoryComponent->Input())
 	{
-		Move = false;
-		OnitemPick.Broadcast();
+		IsAnimStateLand = false;
+		OnInputItemPick.Broadcast();
 	}
 }
 
 void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
-
-	if (active)
-	{
-		OnBeginMachineInstall.Broadcast();
-	}
-	else
-	{
-		OnEndMachineInstall.Broadcast();
-	}
+	OnInputMachineInstall.Broadcast(active);
 }
 
 bool AUnderWorldCharacter::IsWalking() const
@@ -206,9 +196,4 @@ bool AUnderWorldCharacter::IsHaveGadget() const
 bool AUnderWorldCharacter::IsHaveKey() const
 {
 	return InventoryComponent->IsHaveKey();
-}
-
-void AUnderWorldCharacter::CanMove()
-{
-	Move = true;
 }

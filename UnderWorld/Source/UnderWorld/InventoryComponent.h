@@ -24,9 +24,9 @@ public:
 	UInventoryComponent();
 
 public:	
-	void ItemBeginOverlap(AItemBase* item);
-	void ItemEndOverlap(AItemBase* item);
-	bool ItemPickInput();
+	void BeginOverlap(AItemBase* item);
+	void EndOverlap(AItemBase* item);
+	bool Input();
 	bool IsHaveGadget();
 	bool IsHaveKey();
 

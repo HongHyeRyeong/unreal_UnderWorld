@@ -26,17 +26,17 @@ UInventoryComponent::UInventoryComponent()
 	}
 }
 
-void UInventoryComponent::ItemBeginOverlap(AItemBase* item)
+void UInventoryComponent::BeginOverlap(AItemBase* item)
 {
 	itemOverlapArray.Add(item);
 }
 
-void UInventoryComponent::ItemEndOverlap(AItemBase* item)
+void UInventoryComponent::EndOverlap(AItemBase* item)
 {
 	itemOverlapArray.Remove(item);
 }
 
-bool UInventoryComponent::ItemPickInput()
+bool UInventoryComponent::Input()
 {
 	if (character->IsWalking())
 		return false;

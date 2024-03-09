@@ -19,7 +19,7 @@ void AItemBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Othe
 	AUnderWorldCharacter* character = Cast<AUnderWorldCharacter>(OtherActor);
 	if (character)
 	{
-        character->InventoryComponent->ItemBeginOverlap(this);
+        character->InventoryComponent->BeginOverlap(this);
 	}
 }
 
@@ -28,6 +28,6 @@ void AItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
     AUnderWorldCharacter* character = Cast<AUnderWorldCharacter>(OtherActor);
     if (character)
     {
-        character->InventoryComponent->ItemEndOverlap(this);
+        character->InventoryComponent->EndOverlap(this);
     }
 }

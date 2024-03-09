@@ -16,7 +16,8 @@ class UInputAction;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FXFCallBack);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FXFDele);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleBool, bool, active);
 
 UCLASS(config=Game)
 class AUnderWorldCharacter : public ACharacter
@@ -47,15 +48,6 @@ class AUnderWorldCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MachineInstallAction;
 
-	UPROPERTY(BlueprintAssignable)
-	FXFCallBack OnitemPick;
-
-	UPROPERTY(BlueprintAssignable)
-	FXFCallBack OnBeginMachineInstall;
-
-	UPROPERTY(BlueprintAssignable)
-	FXFCallBack OnEndMachineInstall;
-
 public:
 	AUnderWorldCharacter();
 
@@ -72,7 +64,6 @@ protected:
 
 	const int WalkSpeed = 500;
 	const int RunSpeed = 700;
-	bool Move = true;
 
 	const float MaxStamina = 100;
 	float Stamina = MaxStamina;
@@ -81,16 +72,16 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void ItemPutOn(EItemType type, int level);
-
-	UFUNCTION(BlueprintCallable)
-	void CanMove();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsAnimStateLand = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void ItemPutOn(EItemType type, int level);
+
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;
 
@@ -102,4 +93,13 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsHaveKey() const;
+
+	UPROPERTY(BlueprintAssignable)
+	FXFDele OnInputItemPick;
+
+	UPROPERTY(BlueprintAssignable)
+	FXFDeleBool OnInputMachineInstall;
+
+	UPROPERTY(BlueprintAssignable)
+	FXFDeleBool OnMachineInstall;
 };
