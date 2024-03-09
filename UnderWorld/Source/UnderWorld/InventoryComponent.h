@@ -23,17 +23,17 @@ class UNDERWORLD_API UInventoryComponent : public UActorComponent
 public:
 	UInventoryComponent();
 
+public:	
+	void ItemBeginOverlap(AItemBase* item);
+	void ItemEndOverlap(AItemBase* item);
+	bool ItemPickInput();
+
 	UPROPERTY(BlueprintReadOnly, Category = "Item")
 	int keyMaxCount;
 	UPROPERTY(BlueprintReadOnly, Category = "Item")
 	int GadgetMaxCount;
 
 	AUnderWorldCharacter* character;
-
-public:	
-	bool ItemPickInput();
-	void ItemBeginOverlap(AItemBase* item);
-	void ItemEndOverlap(AItemBase* item);
 
 private:
 	TArray<AItemBase*> itemOverlapArray;

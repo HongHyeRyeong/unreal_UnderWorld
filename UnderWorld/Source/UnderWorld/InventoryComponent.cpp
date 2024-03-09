@@ -26,6 +26,16 @@ UInventoryComponent::UInventoryComponent()
 	}
 }
 
+void UInventoryComponent::ItemBeginOverlap(AItemBase* item)
+{
+	itemOverlapArray.Add(item);
+}
+
+void UInventoryComponent::ItemEndOverlap(AItemBase* item)
+{
+	itemOverlapArray.Remove(item);
+}
+
 bool UInventoryComponent::ItemPickInput()
 {
 	if (character->IsWalking())
@@ -39,12 +49,13 @@ bool UInventoryComponent::ItemPickInput()
 		switch (item->itemType)
 		{
 		case EItemType::E_Hat:
-		case EItemType::E_Coat:
 		case EItemType::E_Bag:
 		{
 			pick = true;
-			Item temp(item->level, 1);
+			Item temp(item->itemLevel, 1);
 			itemPickMap[item->itemType].Add(temp);
+
+			character->ItemPutOn(item->itemType, item->itemLevel);
 			break;
 		}
 		case EItemType::E_Key:
@@ -75,14 +86,4 @@ bool UInventoryComponent::ItemPickInput()
 	}
 
 	return pick;
-}
-
-void UInventoryComponent::ItemBeginOverlap(AItemBase* item)
-{
-	itemOverlapArray.Add(item);
-}
-
-void UInventoryComponent::ItemEndOverlap(AItemBase* item)
-{
-	itemOverlapArray.Remove(item);
 }

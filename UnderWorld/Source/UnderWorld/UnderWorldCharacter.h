@@ -68,11 +68,8 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UInventoryComponent* InventoryComponent;
-
-	UPROPERTY(BlueprintAssignable)
-	FKFOnitemPick OnitemPick;
+	UFUNCTION(BlueprintImplementableEvent)
+	void ItemPutOn(EItemType type, int level);
 
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;
@@ -82,4 +79,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CanMove();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(BlueprintAssignable)
+	FKFOnitemPick OnitemPick;
 };

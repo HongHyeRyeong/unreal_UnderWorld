@@ -11,7 +11,6 @@ UENUM(BlueprintType)
 enum class EItemType : uint8
 {
 	E_Hat = 0 UMETA(DisplayName = "Hat"),
-	E_Coat UMETA(DisplayName = "Coat"),
 	E_Bag UMETA(DisplayName = "Bag"),
 	E_Key UMETA(DisplayName = "Key"),
 	E_Gadget UMETA(DisplayName = "Gadget"),
@@ -26,11 +25,11 @@ class UNDERWORLD_API AItemBase : public AActor
 public:
 	AItemBase();
 
-	UPROPERTY(EditAnywhere)
-	EItemType itemType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EItemType itemType = EItemType::E_Hat;
 
-	UPROPERTY(EditAnywhere)
-	int level;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int itemLevel = 1;
 
 protected:
 	UPROPERTY(Category = Collision, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
