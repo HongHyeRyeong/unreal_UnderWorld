@@ -178,6 +178,11 @@ void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
 	OnInputMachineInstall.Broadcast(active);
 }
 
+void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
+{
+	InventoryComponent->Remove(type, level);
+}
+
 bool AUnderWorldCharacter::IsWalking() const
 {
 	return GetCharacterMovement()->Velocity.Length() > 0;

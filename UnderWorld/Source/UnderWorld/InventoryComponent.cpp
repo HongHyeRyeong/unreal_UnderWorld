@@ -26,6 +26,15 @@ UInventoryComponent::UInventoryComponent()
 	}
 }
 
+void UInventoryComponent::Remove(EItemType type, int level)
+{
+	if (type == EItemType::E_Key || type == EItemType::E_Gadget)
+	{
+		if (itemPickMap[type][0].count > 0)
+			itemPickMap[type][0].count--;
+	}
+}
+
 void UInventoryComponent::BeginOverlap(AItemBase* item)
 {
 	itemOverlapArray.Add(item);

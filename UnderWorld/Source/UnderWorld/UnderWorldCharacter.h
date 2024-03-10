@@ -82,6 +82,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ItemPutOn(EItemType type, int level);
 
+	UFUNCTION(BlueprintCallable)
+	void ItemRemove(EItemType type, int level);
+
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;
 
@@ -99,7 +102,4 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FXFDeleBool OnInputMachineInstall;
-
-	UPROPERTY(BlueprintAssignable)
-	FXFDeleBool OnMachineInstall;
 };

@@ -23,10 +23,11 @@ class UNDERWORLD_API UInventoryComponent : public UActorComponent
 public:
 	UInventoryComponent();
 
-public:	
+public:
 	void BeginOverlap(AItemBase* item);
 	void EndOverlap(AItemBase* item);
 	bool Input();
+	void Remove(EItemType type, int level);
 	bool IsHaveGadget();
 	bool IsHaveKey();
 
