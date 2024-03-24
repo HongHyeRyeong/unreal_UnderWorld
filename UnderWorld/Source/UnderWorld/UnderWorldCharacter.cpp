@@ -99,6 +99,11 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 		}
 	}
 
+	if (AttackTimer > 0)
+		AttackTimer -= DeltaTime;
+	if (CounterAttackTimer > 0)
+		CounterAttackTimer -= DeltaTime;
+
 	//UE_LOG(LogTemp, Log, TEXT("Character Stamina :: %f"), Stamina);
 }
 
@@ -114,6 +119,9 @@ void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(ItemPickAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::ItemPick);
 		EnhancedInputComponent->BindAction(MachineInstallAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::MachineInstall);
 		EnhancedInputComponent->BindAction(MachineInstallAction, ETriggerEvent::Completed, this, &AUnderWorldCharacter::MachineInstall);
+		EnhancedInputComponent->BindAction(AvoidAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Avoid);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Attack);
+		EnhancedInputComponent->BindAction(CounterAttackAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::CounterAttack);
 	}
 	else
 	{
@@ -136,7 +144,7 @@ void AUnderWorldCharacter::Walk(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (IsAnimStateLand && Controller != nullptr)
+	if (state == EState::E_Land && Controller != nullptr)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -167,8 +175,8 @@ void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
 	if (InventoryComponent->Input())
 	{
-		IsAnimStateLand = false;
-		OnInputItemPick.Broadcast();
+		state = EState::E_ItemPick;
+		OnChangeState.Broadcast(state);
 	}
 }
 
@@ -178,9 +186,70 @@ void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
 	OnInputMachineInstall.Broadcast(active);
 }
 
+void AUnderWorldCharacter::Avoid(const FInputActionValue& Value)
+{
+	bool active = Value.Get<bool>();
+
+	if (active && state == EState::E_Land)
+	{
+		state = EState::E_Avoid;
+		OnChangeState.Broadcast(state);
+	}
+}
+
+void AUnderWorldCharacter::Attack(const FInputActionValue& Value)
+{
+	bool active = Value.Get<bool>();
+
+	if (active && AttackTimer <= 0 && state == EState::E_Land)
+	{
+		state = EState::E_Attack;
+		AttackTimer = AttackTime;
+		OnChangeState.Broadcast(state);
+	}
+}
+
+void AUnderWorldCharacter::CounterAttack(const FInputActionValue& Value)
+{
+	bool active = Value.Get<bool>();
+
+	if (active && CounterAttackTimer <= 0 && state == EState::E_Land)
+	{
+		state = EState::E_CounterAttack;
+		CounterAttackTimer = CounterAttackTime;
+		OnChangeState.Broadcast(state);
+	}
+}
+
 void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
 {
 	InventoryComponent->Remove(type, level);
+}
+
+void AUnderWorldCharacter::Damage(bool front)
+{
+	if (state == EState::E_CounterAttack)
+	{
+		OnDamageToEnemy.Broadcast();
+		return;
+	}
+	else if (state == EState::E_Avoid || state == EState::E_Down || state == EState::E_FrontDown || state == EState::E_Die)
+	{
+		return;
+	}
+
+	hp -= 50;
+
+	if (hp < 0)
+	{
+		state = EState::E_Die;
+		OnChangeState.Broadcast(state);
+	}
+	else
+	{
+		state = front ? EState::E_FrontDown : EState::E_Down;
+		OnChangeState.Broadcast(state);
+	}
 }
 
 bool AUnderWorldCharacter::IsWalking() const

@@ -15,9 +15,25 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 
+UENUM(BlueprintType)
+enum class EState : uint8
+{
+	E_Land = 0 UMETA(DisplayName = "Land"),
+	E_ItemPick UMETA(DisplayName = "ItemPick"),
+	E_MachineInstall UMETA(DisplayName = "MachineInstall"),
+	E_Avoid UMETA(DisplayName = "Avoid"),
+	E_Attack UMETA(DisplayName = "Attack"),
+	E_CounterAttack UMETA(DisplayName = "CounterAttack"),
+	E_Down UMETA(DisplayName = "Down"),
+	E_FrontDown UMETA(DisplayName = "FrontDown"),
+	E_Trap UMETA(DisplayName = "Trap"),
+	E_Die UMETA(DisplayName = "Die")
+};
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FXFDele);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleBool, bool, active);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleState, EState, state);
 
 UCLASS(config=Game)
 class AUnderWorldCharacter : public ACharacter
@@ -48,6 +64,15 @@ class AUnderWorldCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MachineInstallAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AvoidAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* CounterAttackAction;
+
 public:
 	AUnderWorldCharacter();
 
@@ -61,19 +86,30 @@ protected:
 	void Run(const FInputActionValue& Value);
 	void ItemPick(const FInputActionValue& Value);
 	void MachineInstall(const FInputActionValue& Value);
+	void Avoid(const FInputActionValue& Value);
+	void Attack(const FInputActionValue& Value);
+	void CounterAttack(const FInputActionValue& Value);
 
+	const int MaxHP = 100;
 	const int WalkSpeed = 500;
 	const int RunSpeed = 700;
-
 	const float MaxStamina = 100;
+	const float AttackTime = 3;
+	const float CounterAttackTime = 5;
+
 	float Stamina = MaxStamina;
+	float AttackTimer = 0;
+	float CounterAttackTimer = 0;
 
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool IsAnimStateLand = true;
+	EState state = EState::E_Land;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int hp = MaxHP;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
@@ -84,6 +120,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ItemRemove(EItemType type, int level);
+
+	UFUNCTION(BlueprintCallable)
+	void Damage(bool front);
 
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;
@@ -98,7 +137,10 @@ public:
 	bool IsHaveKey() const;
 
 	UPROPERTY(BlueprintAssignable)
-	FXFDele OnInputItemPick;
+	FXFDeleState OnChangeState;
+
+	UPROPERTY(BlueprintAssignable)
+	FXFDele OnDamageToEnemy;
 
 	UPROPERTY(BlueprintAssignable)
 	FXFDeleBool OnInputMachineInstall;
