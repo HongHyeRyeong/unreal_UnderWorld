@@ -73,6 +73,9 @@ class AUnderWorldCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CounterAttackAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* PrisonAction;
+
 public:
 	AUnderWorldCharacter();
 
@@ -89,6 +92,7 @@ protected:
 	void Avoid(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
 	void CounterAttack(const FInputActionValue& Value);
+	void Prison(const FInputActionValue& Value);
 
 	const int MaxHP = 100;
 	const int WalkSpeed = 500;
@@ -117,6 +121,9 @@ public:
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ItemPutOn(EItemType type, int level);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void FindNearestPrison();
 
 	UFUNCTION(BlueprintCallable)
 	void AnimEnd();
@@ -150,4 +157,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FXFDeleBool OnInputMachineInstall;
+
+	UPROPERTY(BlueprintAssignable)
+	FXFDele OnPrison;
 };

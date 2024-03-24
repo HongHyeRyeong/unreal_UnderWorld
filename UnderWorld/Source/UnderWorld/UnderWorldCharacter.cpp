@@ -122,6 +122,7 @@ void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(AvoidAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Avoid);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Attack);
 		EnhancedInputComponent->BindAction(CounterAttackAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::CounterAttack);
+		EnhancedInputComponent->BindAction(PrisonAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Prison);
 	}
 	else
 	{
@@ -221,6 +222,19 @@ void AUnderWorldCharacter::CounterAttack(const FInputActionValue& Value)
 	}
 }
 
+void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
+{
+	bool active = Value.Get<bool>();
+
+	if (active && state == EState::E_Land)
+	{
+		OnPrison.Broadcast();
+		ItemRemove(EItemType::E_Key, 1);
+
+		hp = 100;
+	}
+}
+
 void AUnderWorldCharacter::AnimEnd()
 {
 	state = EState::E_Land;
@@ -249,10 +263,19 @@ void AUnderWorldCharacter::Damage(bool front)
 
 	hp -= 50;
 
-	if (hp < 0)
+	if (hp <= 0)
 	{
-		state = EState::E_Die;
-		OnChangeState.Broadcast(state);
+		if (InventoryComponent->IsHaveKey()) 
+		{
+			state = EState::E_Down;
+			OnChangeState.Broadcast(state);
+			FindNearestPrison();
+		}
+		else
+		{
+			state = EState::E_Die;
+			OnChangeState.Broadcast(state);
+		}
 	}
 	else
 	{
