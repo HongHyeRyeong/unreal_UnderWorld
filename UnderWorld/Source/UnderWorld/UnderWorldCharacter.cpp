@@ -221,6 +221,12 @@ void AUnderWorldCharacter::CounterAttack(const FInputActionValue& Value)
 	}
 }
 
+void AUnderWorldCharacter::AnimEnd()
+{
+	state = EState::E_Land;
+	OnChangeState.Broadcast(state);
+}
+
 void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
 {
 	InventoryComponent->Remove(type, level);
@@ -238,7 +244,7 @@ void AUnderWorldCharacter::Damage(bool front)
 		return;
 	}
 
-	if(state == EState::E_MachineInstall)
+	if (state == EState::E_MachineInstall)
 		OnInputMachineInstall.Broadcast(false);
 
 	hp -= 50;
@@ -253,6 +259,16 @@ void AUnderWorldCharacter::Damage(bool front)
 		state = front ? EState::E_FrontDown : EState::E_Down;
 		OnChangeState.Broadcast(state);
 	}
+}
+
+void AUnderWorldCharacter::Trap()
+{
+	if (state == EState::E_MachineInstall)
+		OnInputMachineInstall.Broadcast(false);
+
+	state = EState::E_Trap;
+	OnChangeState.Broadcast(state);
+	GetCharacterMovement()->StopMovementImmediately();
 }
 
 bool AUnderWorldCharacter::IsWalking() const

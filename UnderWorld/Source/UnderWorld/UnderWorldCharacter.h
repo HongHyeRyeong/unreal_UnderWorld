@@ -119,10 +119,16 @@ public:
 	void ItemPutOn(EItemType type, int level);
 
 	UFUNCTION(BlueprintCallable)
+	void AnimEnd();
+
+	UFUNCTION(BlueprintCallable)
 	void ItemRemove(EItemType type, int level);
 
 	UFUNCTION(BlueprintCallable)
 	void Damage(bool front);
+
+	UFUNCTION(BlueprintCallable)
+	void Trap();
 
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;
