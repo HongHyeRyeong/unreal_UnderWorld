@@ -238,6 +238,9 @@ void AUnderWorldCharacter::Damage(bool front)
 		return;
 	}
 
+	if(state == EState::E_MachineInstall)
+		OnInputMachineInstall.Broadcast(false);
+
 	hp -= 50;
 
 	if (hp < 0)
