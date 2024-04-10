@@ -98,6 +98,7 @@ protected:
 	const int WalkSpeed = 500;
 	const int RunSpeed = 700;
 	const float MaxStamina = 100;
+	const float installDefaultSpeed = 0.1f;
 	const float AttackTime = 3;
 	const float CounterAttackTime = 5;
 
@@ -105,9 +106,14 @@ protected:
 	float AttackTimer = 0;
 	float CounterAttackTimer = 0;
 
+	int hatLevel = 0;
+
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInventoryComponent* InventoryComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EState state = EState::E_Land;
@@ -115,12 +121,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int hp = MaxHP;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UInventoryComponent* InventoryComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float speedUp = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float installSpeed = 0.1f;
 
 public:
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	void ItemPutOn(EItemType type, int level);
+	virtual void ItemPutOn_Implementation(EItemType type, int level);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void FindNearestPrison();
@@ -136,6 +146,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Trap();
+
+	UFUNCTION(BlueprintCallable)
+	void CheckSpeedUp(bool active);
 
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;

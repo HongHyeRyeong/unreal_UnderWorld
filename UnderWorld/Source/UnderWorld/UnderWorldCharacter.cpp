@@ -35,7 +35,7 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * speedUp;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -85,7 +85,7 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
-			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * speedUp;
 		}
 	}
 	else
@@ -104,7 +104,7 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 	if (CounterAttackTimer > 0)
 		CounterAttackTimer -= DeltaTime;
 
-	//UE_LOG(LogTemp, Log, TEXT("Character Stamina :: %f"), Stamina);
+	UE_LOG(LogTemp, Log, TEXT("Character Speed :: %f"), GetCharacterMovement()->MaxWalkSpeed);
 }
 
 void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -164,11 +164,11 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 	if (active)
 	{
 		if (IsWalking() && Stamina > 0)
-			GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+			GetCharacterMovement()->MaxWalkSpeed = RunSpeed * speedUp;
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * speedUp;
 	}
 }
 
@@ -235,6 +235,23 @@ void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
 	}
 }
 
+void AUnderWorldCharacter::ItemPutOn_Implementation(EItemType type, int level)
+{
+	ItemPutOn(type, level);
+
+	if (type == EItemType::E_Hat) {
+		hatLevel = level;
+	}
+	else if(type == EItemType::E_Bag) {
+		if (level == 1)
+			installSpeed = installDefaultSpeed * 1.1f;
+		else if (level == 2)
+			installSpeed = installDefaultSpeed * 1.3f;
+		else
+			installSpeed = installDefaultSpeed;
+	}
+}
+
 void AUnderWorldCharacter::AnimEnd()
 {
 	state = EState::E_Land;
@@ -294,6 +311,28 @@ void AUnderWorldCharacter::Trap()
 	GetCharacterMovement()->StopMovementImmediately();
 }
 
+void AUnderWorldCharacter::CheckSpeedUp(bool active)
+{
+	bool canSpeedUp = false;
+
+	if (active) {
+		float percent = 0;
+
+		if (hatLevel == 1)
+			percent = 10;
+		else if (hatLevel == 2)
+			percent = 15;
+		else if (hatLevel == 3)
+			percent = 20;
+
+		float random = FMath::RandRange(0.0f, 100.0f);
+		percent = (percent / 100) * 100;
+		canSpeedUp = 0 < random && random <= percent;
+	}
+
+	speedUp = canSpeedUp ? 1.1f : 1.0f;
+}
+
 bool AUnderWorldCharacter::IsWalking() const
 {
 	return GetCharacterMovement()->Velocity.Length() > 0;
@@ -301,7 +340,7 @@ bool AUnderWorldCharacter::IsWalking() const
 
 bool AUnderWorldCharacter::IsRunning() const
 {
-	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed;
+	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed * speedUp;
 }
 
 bool AUnderWorldCharacter::IsHaveGadget() const

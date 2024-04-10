@@ -4,8 +4,8 @@
 
 UInventoryComponent::UInventoryComponent()
 {
-	keyMaxCount = 2;
-	GadgetMaxCount = 3;
+	keyMaxCount = 3;
+	GadgetMaxCount = 10;
 
 	for (int i = 0; i < (int)EItemType::E_Max; ++i)
 	{
@@ -13,13 +13,13 @@ UInventoryComponent::UInventoryComponent()
 
 		switch ((EItemType)i)
 		{
-		case EItemType::E_Key:
-		case EItemType::E_Gadget:
-		{
-			Item item(0, 0);
-			items.Add(item);
-			break;
-		}
+			case EItemType::E_Key:
+			case EItemType::E_Gadget:
+			{
+				Item item(0, 0);
+				items.Add(item);
+				break;
+			}
 		}
 
 		itemPickMap.Add((EItemType)i, items);
@@ -57,34 +57,33 @@ bool UInventoryComponent::Input()
 
 		switch (item->itemType)
 		{
-		case EItemType::E_Hat:
-		case EItemType::E_Bag:
-		{
-			pick = true;
-			Item temp(item->itemLevel, 1);
-			itemPickMap[item->itemType].Add(temp);
-
-			character->ItemPutOn(item->itemType, item->itemLevel);
-			break;
-		}
-		case EItemType::E_Key:
-		{
-			if (itemPickMap[item->itemType][0].count < keyMaxCount)
+			case EItemType::E_Hat:
+			case EItemType::E_Bag:
 			{
 				pick = true;
-				itemPickMap[item->itemType][0].count++;
+				Item temp(item->itemLevel, 1);
+				itemPickMap[item->itemType].Add(temp);
+				character->ItemPutOn_Implementation(item->itemType, item->itemLevel);
+				break;
 			}
-			break;
-		}
-		case EItemType::E_Gadget:
-		{
-			if (itemPickMap[item->itemType][0].count < GadgetMaxCount)
+			case EItemType::E_Key:
 			{
-				pick = true;
-				itemPickMap[item->itemType][0].count++;
+				if (itemPickMap[item->itemType][0].count < keyMaxCount)
+				{
+					pick = true;
+					itemPickMap[item->itemType][0].count++;
+				}
+				break;
 			}
-			break;
-		}
+			case EItemType::E_Gadget:
+			{
+				if (itemPickMap[item->itemType][0].count < GadgetMaxCount)
+				{
+					pick = true;
+					itemPickMap[item->itemType][0].count++;
+				}
+				break;
+			}
 		}
 
 		if (pick)

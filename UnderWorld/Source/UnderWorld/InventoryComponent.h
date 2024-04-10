@@ -31,14 +31,12 @@ public:
 	bool IsHaveGadget();
 	bool IsHaveKey();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Item")
-	int keyMaxCount;
-	UPROPERTY(BlueprintReadOnly, Category = "Item")
-	int GadgetMaxCount;
-
 	AUnderWorldCharacter* character;
 
 private:
 	TArray<AItemBase*> itemOverlapArray;
 	TMap<EItemType, TArray<Item>> itemPickMap;
+
+	int keyMaxCount;
+	int GadgetMaxCount;
 };
