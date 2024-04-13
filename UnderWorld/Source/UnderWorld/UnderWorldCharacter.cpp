@@ -263,11 +263,11 @@ void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
 	InventoryComponent->Remove(type, level);
 }
 
-void AUnderWorldCharacter::Damage(bool front)
+void AUnderWorldCharacter::AttackByEnemy(bool front)
 {
 	if (state == EState::E_CounterAttack)
 	{
-		OnDamageToEnemy.Broadcast();
+		OnCounterAttackToEnemy.Broadcast();
 		return;
 	}
 	else if (state == EState::E_Avoid || state == EState::E_Down || state == EState::E_FrontDown || state == EState::E_Die)

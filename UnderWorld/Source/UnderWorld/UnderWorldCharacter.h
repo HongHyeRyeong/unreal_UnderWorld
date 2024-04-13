@@ -142,7 +142,7 @@ public:
 	void ItemRemove(EItemType type, int level);
 
 	UFUNCTION(BlueprintCallable)
-	void Damage(bool front);
+	void AttackByEnemy(bool front);
 
 	UFUNCTION(BlueprintCallable)
 	void Trap();
@@ -166,7 +166,7 @@ public:
 	FXFDeleState OnChangeState;
 
 	UPROPERTY(BlueprintAssignable)
-	FXFDele OnDamageToEnemy;
+	FXFDele OnCounterAttackToEnemy;
 
 	UPROPERTY(BlueprintAssignable)
 	FXFDeleBool OnInputMachineInstall;
