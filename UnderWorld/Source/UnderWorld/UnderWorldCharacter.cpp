@@ -104,7 +104,7 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 	if (CounterAttackTimer > 0)
 		CounterAttackTimer -= DeltaTime;
 
-	UE_LOG(LogTemp, Log, TEXT("Character Speed :: %f"), GetCharacterMovement()->MaxWalkSpeed);
+	//UE_LOG(LogTemp, Log, TEXT("Character Speed :: %f"), GetCharacterMovement()->MaxWalkSpeed);
 }
 
 void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
