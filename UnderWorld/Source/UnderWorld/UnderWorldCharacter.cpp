@@ -176,15 +176,17 @@ void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
 	if (InventoryComponent->Input())
 	{
-		state = EState::E_ItemPick;
-		OnChangeState.Broadcast(state);
+		SetEState(EState::E_ItemPick);
 	}
 }
 
 void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
 {
-	bool active = Value.Get<bool>();
-	OnInputMachineInstall.Broadcast(active);
+	if (state == EState::E_Land || state == EState::E_MachineInstall) 
+	{
+		bool active = Value.Get<bool>();
+		OnInputMachineInstall.Broadcast(active);
+	}
 }
 
 void AUnderWorldCharacter::Avoid(const FInputActionValue& Value)
@@ -193,8 +195,7 @@ void AUnderWorldCharacter::Avoid(const FInputActionValue& Value)
 
 	if (active && state == EState::E_Land)
 	{
-		state = EState::E_Avoid;
-		OnChangeState.Broadcast(state);
+		SetEState(EState::E_Avoid);
 	}
 }
 
@@ -204,9 +205,8 @@ void AUnderWorldCharacter::Attack(const FInputActionValue& Value)
 
 	if (active && AttackTimer <= 0 && state == EState::E_Land)
 	{
-		state = EState::E_Attack;
+		SetEState(EState::E_Attack);
 		AttackTimer = AttackTime;
-		OnChangeState.Broadcast(state);
 	}
 }
 
@@ -216,9 +216,8 @@ void AUnderWorldCharacter::CounterAttack(const FInputActionValue& Value)
 
 	if (active && CounterAttackTimer <= 0 && state == EState::E_Land)
 	{
-		state = EState::E_CounterAttack;
+		SetEState(EState::E_CounterAttack);
 		CounterAttackTimer = CounterAttackTime;
-		OnChangeState.Broadcast(state);
 	}
 }
 
@@ -252,10 +251,15 @@ void AUnderWorldCharacter::ItemPutOn_Implementation(EItemType type, int level)
 	}
 }
 
+void AUnderWorldCharacter::SetEState(EState value)
+{
+	state = value;
+	OnChangeState.Broadcast(state);
+}
+
 void AUnderWorldCharacter::AnimEnd()
 {
-	state = EState::E_Land;
-	OnChangeState.Broadcast(state);
+	SetEState(EState::E_Land);
 }
 
 void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
@@ -284,20 +288,17 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 	{
 		if (InventoryComponent->IsHaveKey()) 
 		{
-			state = EState::E_Down;
-			OnChangeState.Broadcast(state);
+			SetEState(EState::E_Down);
 			FindNearestPrison();
 		}
 		else
 		{
-			state = EState::E_Die;
-			OnChangeState.Broadcast(state);
+			SetEState(EState::E_Die);
 		}
 	}
 	else
 	{
-		state = front ? EState::E_FrontDown : EState::E_Down;
-		OnChangeState.Broadcast(state);
+		SetEState(front ? EState::E_FrontDown : EState::E_Down);
 	}
 }
 
@@ -306,8 +307,7 @@ void AUnderWorldCharacter::Trap()
 	if (state == EState::E_MachineInstall)
 		OnInputMachineInstall.Broadcast(false);
 
-	state = EState::E_Trap;
-	OnChangeState.Broadcast(state);
+	SetEState(EState::E_Trap);
 	GetCharacterMovement()->StopMovementImmediately();
 }
 

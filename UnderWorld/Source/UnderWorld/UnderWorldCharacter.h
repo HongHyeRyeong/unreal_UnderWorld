@@ -136,6 +136,9 @@ public:
 	void FindNearestPrison();
 
 	UFUNCTION(BlueprintCallable)
+	void SetEState(EState value);
+
+	UFUNCTION(BlueprintCallable)
 	void AnimEnd();
 
 	UFUNCTION(BlueprintCallable)

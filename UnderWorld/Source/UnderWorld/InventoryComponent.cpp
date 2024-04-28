@@ -60,10 +60,23 @@ bool UInventoryComponent::Input()
 			case EItemType::E_Hat:
 			case EItemType::E_Bag:
 			{
-				pick = true;
-				Item temp(item->itemLevel, 1);
-				itemPickMap[item->itemType].Add(temp);
-				character->ItemPutOn_Implementation(item->itemType, item->itemLevel);
+				bool isHave = false;
+				for (auto& haveItem : itemPickMap[item->itemType]) 
+				{
+					if (haveItem.level == item->itemLevel)
+					{
+						isHave = true;
+						break;
+					}
+				}
+
+				if (isHave == false) 
+				{
+					pick = true;
+					Item temp(item->itemLevel, 1);
+					itemPickMap[item->itemType].Add(temp);
+					character->ItemPutOn_Implementation(item->itemType, item->itemLevel);
+				}
 				break;
 			}
 			case EItemType::E_Key:
