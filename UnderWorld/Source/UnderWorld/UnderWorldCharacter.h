@@ -27,7 +27,8 @@ enum class EState : uint8
 	E_Down UMETA(DisplayName = "Down"),
 	E_FrontDown UMETA(DisplayName = "FrontDown"),
 	E_Trap UMETA(DisplayName = "Trap"),
-	E_Die UMETA(DisplayName = "Die")
+	E_Die UMETA(DisplayName = "Die"),
+	E_Clear UMETA(DisplayName = "Clear")
 };
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
