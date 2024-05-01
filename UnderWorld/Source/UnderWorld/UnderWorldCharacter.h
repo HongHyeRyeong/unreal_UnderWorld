@@ -97,16 +97,12 @@ protected:
 	const int MaxHP = 100;
 	const int WalkSpeed = 500;
 	const int RunSpeed = 700;
-	const float MaxStamina = 100;
 	const float installDefaultSpeed = 0.1f;
-	const float AttackTime = 3;
-	const float CounterAttackTime = 5;
-
-	float Stamina = MaxStamina;
-	float AttackTimer = 0;
-	float CounterAttackTimer = 0;
+	float AttackTime = 3;
+	float CounterAttackTime = 5;
 
 	int hatLevel = 0;
+	bool beInPrison = 0;
 
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -119,7 +115,7 @@ public:
 	EState state = EState::E_Land;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int hp = MaxHP;
+	float hp = MaxHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float speedUp = 1.0f;
@@ -127,9 +123,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float installSpeed = 0.1f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Stamina = MaxStamina;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxStamina = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AttackTimer = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CounterAttackTimer = 0;
+
 public:
 	UFUNCTION(BlueprintNativeEvent)
 	void ItemPutOn(EItemType type, int level);
+
+	UFUNCTION(BlueprintCallable)
 	virtual void ItemPutOn_Implementation(EItemType type, int level);
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -164,6 +174,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsHaveKey() const;
+
+	UFUNCTION(BlueprintPure)
+	int GetItemCount(EItemType type, int level) const;
 
 	UPROPERTY(BlueprintAssignable)
 	FXFDeleState OnChangeState;

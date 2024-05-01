@@ -28,8 +28,7 @@ public:
 	void EndOverlap(AItemBase* item);
 	bool Input();
 	void Remove(EItemType type, int level);
-	bool IsHaveGadget();
-	bool IsHaveKey();
+	int GetItemCount(EItemType type, int level);
 
 	AUnderWorldCharacter* character;
 

@@ -109,12 +109,22 @@ bool UInventoryComponent::Input()
 	return pick;
 }
 
-bool UInventoryComponent::IsHaveGadget()
+int UInventoryComponent::GetItemCount(EItemType type, int level)
 {
-	return itemPickMap[EItemType::E_Gadget][0].count > 0;
-}
-
-bool UInventoryComponent::IsHaveKey()
-{
-	return itemPickMap[EItemType::E_Key][0].count > 0;
+	switch (type)
+	{
+	case EItemType::E_Hat:
+	case EItemType::E_Bag:
+	{
+		bool isHave = false;
+		for (auto& haveItem : itemPickMap[type])
+			if (haveItem.level == level)
+				return haveItem.count;
+		break;
+	}
+	case EItemType::E_Key:
+	case EItemType::E_Gadget:
+		return itemPickMap[type][0].count;
+	}
+	return 0;
 }

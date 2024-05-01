@@ -56,6 +56,8 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Item Inventory"));
 	InventoryComponent->character = this;
+
+	Stamina = MaxStamina;
 }
 
 void AUnderWorldCharacter::BeginPlay()
@@ -104,7 +106,7 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 	if (CounterAttackTimer > 0)
 		CounterAttackTimer -= DeltaTime;
 
-	//UE_LOG(LogTemp, Log, TEXT("Character Speed :: %f"), GetCharacterMovement()->MaxWalkSpeed);
+	//UE_LOG(LogTemp, Log, TEXT("Character Speed :: %f"), Stamina);
 }
 
 void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -225,17 +227,21 @@ void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && state == EState::E_Land)
+	if (active && beInPrison && state == EState::E_Land)
 	{
 		OnPrison.Broadcast();
 		ItemRemove(EItemType::E_Key, 1);
 
+		beInPrison = false;
 		hp = 100;
 	}
 }
 
 void AUnderWorldCharacter::ItemPutOn_Implementation(EItemType type, int level)
 {
+	if (GetItemCount(type, level) == 0)
+		return;
+
 	ItemPutOn(type, level);
 
 	if (type == EItemType::E_Hat) {
@@ -282,12 +288,13 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 	if (state == EState::E_MachineInstall)
 		OnInputMachineInstall.Broadcast(false);
 
-	hp -= 50;
+	hp -= 50.0f;
 
 	if (hp <= 0)
 	{
-		if (InventoryComponent->IsHaveKey()) 
+		if (IsHaveKey()) 
 		{
+			beInPrison = true;
 			SetEState(EState::E_Down);
 			FindNearestPrison();
 		}
@@ -345,10 +352,15 @@ bool AUnderWorldCharacter::IsRunning() const
 
 bool AUnderWorldCharacter::IsHaveGadget() const
 {
-	return InventoryComponent->IsHaveGadget();
+	return GetItemCount(EItemType::E_Gadget, 0) > 0;
 }
 
 bool AUnderWorldCharacter::IsHaveKey() const
 {
-	return InventoryComponent->IsHaveKey();
+	return GetItemCount(EItemType::E_Key, 0) > 0;
+}
+
+int AUnderWorldCharacter::GetItemCount(EItemType type, int level) const
+{
+	return InventoryComponent->GetItemCount(type, level);
 }
