@@ -288,7 +288,7 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 	if (state == EState::E_MachineInstall)
 		OnInputMachineInstall.Broadcast(false);
 
-	hp -= 50.0;
+	hp -= 50.0f;
 
 	if (hp <= 0)
 	{
