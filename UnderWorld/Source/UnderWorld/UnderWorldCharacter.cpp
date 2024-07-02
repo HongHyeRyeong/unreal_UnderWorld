@@ -147,7 +147,7 @@ void AUnderWorldCharacter::Walk(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (state == EState::E_Land && Controller != nullptr)
+	if (state == ECharacterState::LAND && Controller != nullptr)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -178,13 +178,13 @@ void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
 	if (InventoryComponent->Input())
 	{
-		SetEState(EState::E_ItemPick);
+		SetECharacterState(ECharacterState::ITEM_PICK);
 	}
 }
 
 void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
 {
-	if (state == EState::E_Land || state == EState::E_MachineInstall) 
+	if (state == ECharacterState::LAND || state == ECharacterState::MACHINE_INSTALL)
 	{
 		bool active = Value.Get<bool>();
 		OnInputMachineInstall.Broadcast(active);
@@ -195,9 +195,9 @@ void AUnderWorldCharacter::Avoid(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && state == EState::E_Land)
+	if (active && state == ECharacterState::LAND)
 	{
-		SetEState(EState::E_Avoid);
+		SetECharacterState(ECharacterState::AVOID);
 	}
 }
 
@@ -205,9 +205,9 @@ void AUnderWorldCharacter::Attack(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && AttackTimer <= 0 && state == EState::E_Land)
+	if (active && AttackTimer <= 0 && state == ECharacterState::LAND)
 	{
-		SetEState(EState::E_Attack);
+		SetECharacterState(ECharacterState::ATTACK);
 		AttackTimer = AttackTime;
 	}
 }
@@ -216,9 +216,9 @@ void AUnderWorldCharacter::CounterAttack(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && CounterAttackTimer <= 0 && state == EState::E_Land)
+	if (active && CounterAttackTimer <= 0 && state == ECharacterState::LAND)
 	{
-		SetEState(EState::E_CounterAttack);
+		SetECharacterState(ECharacterState::COUNTER_ATTACK);
 		CounterAttackTimer = CounterAttackTime;
 	}
 }
@@ -227,7 +227,7 @@ void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && beInPrison && state == EState::E_Land)
+	if (active && beInPrison && state == ECharacterState::LAND)
 	{
 		OnPrison.Broadcast();
 		ItemRemove(EItemType::E_Key, 1);
@@ -257,7 +257,7 @@ void AUnderWorldCharacter::ItemPutOn_Implementation(EItemType type, int level)
 	}
 }
 
-void AUnderWorldCharacter::SetEState(EState value)
+void AUnderWorldCharacter::SetECharacterState(ECharacterState value)
 {
 	state = value;
 	OnChangeState.Broadcast(state);
@@ -265,7 +265,7 @@ void AUnderWorldCharacter::SetEState(EState value)
 
 void AUnderWorldCharacter::AnimEnd()
 {
-	SetEState(EState::E_Land);
+	SetECharacterState(ECharacterState::LAND);
 }
 
 void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
@@ -275,16 +275,16 @@ void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
 
 void AUnderWorldCharacter::AttackByEnemy(bool front)
 {
-	if (state == EState::E_CounterAttack)
+	if (state == ECharacterState::COUNTER_ATTACK)
 	{
 		OnCounterAttackToEnemy.Broadcast();
 		return;
 	}
-	else if (state == EState::E_Avoid || state == EState::E_Down || state == EState::E_FrontDown || state == EState::E_Die)
+	else if (state == ECharacterState::AVOID || state == ECharacterState::DOWN || state == ECharacterState::DOWN_FRONT || state == ECharacterState::DIE)
 	{
 		return;
 	}
-	else if (state == EState::E_MachineInstall)
+	else if (state == ECharacterState::MACHINE_INSTALL)
 		OnInputMachineInstall.Broadcast(false);
 
 	hp -= 50.0f;
@@ -294,26 +294,26 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 		if (IsHaveKey()) 
 		{
 			beInPrison = true;
-			SetEState(EState::E_Down);
+			SetECharacterState(ECharacterState::DOWN);
 			FindNearestPrison();
 		}
 		else
 		{
-			SetEState(EState::E_Die);
+			SetECharacterState(ECharacterState::DIE);
 		}
 	}
 	else
 	{
-		SetEState(front ? EState::E_FrontDown : EState::E_Down);
+		SetECharacterState(front ? ECharacterState::DOWN_FRONT : ECharacterState::DOWN);
 	}
 }
 
 void AUnderWorldCharacter::Trap()
 {
-	if (state == EState::E_MachineInstall)
+	if (state == ECharacterState::MACHINE_INSTALL)
 		OnInputMachineInstall.Broadcast(false);
 
-	SetEState(EState::E_Trap);
+	SetECharacterState(ECharacterState::TRAP);
 	GetCharacterMovement()->StopMovementImmediately();
 }
 

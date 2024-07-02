@@ -16,31 +16,55 @@ class UInputAction;
 struct FInputActionValue;
 
 UENUM(BlueprintType)
-enum class EState : uint8
+enum class ECharacterState : uint8
 {
-	E_Land = 0 UMETA(DisplayName = "Land"),
-	E_ItemPick UMETA(DisplayName = "ItemPick"),
-	E_MachineInstall UMETA(DisplayName = "MachineInstall"),
-	E_Avoid UMETA(DisplayName = "Avoid"),
-	E_Attack UMETA(DisplayName = "Attack"),
-	E_CounterAttack UMETA(DisplayName = "CounterAttack"),
-	E_Down UMETA(DisplayName = "Down"),
-	E_FrontDown UMETA(DisplayName = "FrontDown"),
-	E_Trap UMETA(DisplayName = "Trap"),
-	E_Die UMETA(DisplayName = "Die"),
-	E_Clear UMETA(DisplayName = "Clear")
+	LAND = 0,
+	ITEM_PICK,
+	MACHINE_INSTALL,
+	AVOID,
+	ATTACK,
+	COUNTER_ATTACK,
+	DOWN,
+	DOWN_FRONT,
+	TRAP,
+	DIE,
+	CLEAR
 };
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FXFDele);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleBool, bool, active);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleState, EState, state);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleState, ECharacterState, state);
 
 UCLASS(config=Game)
 class AUnderWorldCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
+	AUnderWorldCharacter();
+
+protected:
+	virtual void BeginPlay();
+	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+public:
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+protected:
+	void Look(const FInputActionValue& Value);
+	void Walk(const FInputActionValue& Value);
+	void Run(const FInputActionValue& Value);
+	void ItemPick(const FInputActionValue& Value);
+	void MachineInstall(const FInputActionValue& Value);
+	void Avoid(const FInputActionValue& Value);
+	void Attack(const FInputActionValue& Value);
+	void CounterAttack(const FInputActionValue& Value);
+	void Prison(const FInputActionValue& Value);
+
+private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
@@ -78,42 +102,11 @@ class AUnderWorldCharacter : public ACharacter
 	UInputAction* PrisonAction;
 
 public:
-	AUnderWorldCharacter();
-
-protected:
-	virtual void BeginPlay();
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	void Look(const FInputActionValue& Value);
-	void Walk(const FInputActionValue& Value);
-	void Run(const FInputActionValue& Value);
-	void ItemPick(const FInputActionValue& Value);
-	void MachineInstall(const FInputActionValue& Value);
-	void Avoid(const FInputActionValue& Value);
-	void Attack(const FInputActionValue& Value);
-	void CounterAttack(const FInputActionValue& Value);
-	void Prison(const FInputActionValue& Value);
-
-	const int MaxHP = 100;
-	const int WalkSpeed = 500;
-	const int RunSpeed = 700;
-	const float installDefaultSpeed = 0.1f;
-	float AttackTime = 3;
-	float CounterAttackTime = 5;
-
-	int hatLevel = 0;
-	bool beInPrison = 0;
-
-public:
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInventoryComponent* InventoryComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EState state = EState::E_Land;
+	ECharacterState state = ECharacterState::LAND;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float hp = MaxHP;
@@ -136,6 +129,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CounterAttackTimer = 0;
 
+	const int MaxHP = 100;
+	const int WalkSpeed = 500;
+	const int RunSpeed = 700;
+	const float installDefaultSpeed = 0.1f;
+	float AttackTime = 3;
+	float CounterAttackTime = 5;
+
+	int hatLevel = 0;
+	bool beInPrison = 0;
+
 public:
 	UFUNCTION(BlueprintNativeEvent)
 	void ItemPutOn(EItemType type, int level);
@@ -147,7 +150,7 @@ public:
 	void FindNearestPrison();
 
 	UFUNCTION(BlueprintCallable)
-	void SetEState(EState value);
+	void SetECharacterState(ECharacterState value);
 
 	UFUNCTION(BlueprintCallable)
 	void AnimEnd();
