@@ -6,6 +6,7 @@ AItemBase::AItemBase()
 {
     CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
     RootComponent = CollisionBox;
+    CollisionBox->SetBoxExtent(FVector(15, 15, 15));
     CollisionBox->SetCollisionProfileName(TEXT("OverlapOnlySurvivor"));
     CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnBeginOverlap);
     CollisionBox->OnComponentEndOverlap.AddDynamic(this, &AItemBase::OnEndOverlap);

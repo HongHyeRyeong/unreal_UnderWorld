@@ -39,6 +39,7 @@ void UInventoryComponent::EndOverlap(AItemBase* item)
 bool UInventoryComponent::Input()
 {
 	bool Pick = false;
+
 	if (PickItemArray.Num() > 0)
 	{
 		AItemBase* OverlapItem = PickItemArray[0];
