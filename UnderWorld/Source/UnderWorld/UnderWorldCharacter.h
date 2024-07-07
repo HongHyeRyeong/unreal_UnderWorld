@@ -47,13 +47,8 @@ public:
 protected:
 	virtual void BeginPlay();
 	virtual void Tick(float DeltaTime) override;
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-public:
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-protected:
 	void Look(const FInputActionValue& Value);
 	void Walk(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
@@ -63,6 +58,10 @@ protected:
 	void Attack(const FInputActionValue& Value);
 	void CounterAttack(const FInputActionValue& Value);
 	void Prison(const FInputActionValue& Value);
+
+public:
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -136,27 +135,28 @@ public:
 	float AttackTime = 3;
 	float CounterAttackTime = 5;
 
+	AItemBase* FocusItem;
 	int hatLevel = 0;
 	bool beInPrison = 0;
 
 public:
-	UFUNCTION(BlueprintNativeEvent)
-	void ItemPutOn(EItemType type, int level);
-
-	UFUNCTION(BlueprintCallable)
-	virtual void ItemPutOn_Implementation(EItemType type, int level);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void FindNearestPrison();
-
 	UFUNCTION(BlueprintCallable)
 	void SetECharacterState(ECharacterState value);
 
 	UFUNCTION(BlueprintCallable)
 	void AnimEnd();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void ItemPutOn(EItemType type, int level);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void ItemPutOn_Implementation(EItemType type, int level);
+
 	UFUNCTION(BlueprintCallable)
 	void ItemRemove(EItemType type, int level);
+
+	UFUNCTION(BlueprintCallable)
+	void CheckSpeedUp(bool active);
 
 	UFUNCTION(BlueprintCallable)
 	void AttackByEnemy(bool front);
@@ -164,8 +164,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Trap();
 
-	UFUNCTION(BlueprintCallable)
-	void CheckSpeedUp(bool active);
+	UFUNCTION(BlueprintImplementableEvent)
+	void FindNearestPrison();
 
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;

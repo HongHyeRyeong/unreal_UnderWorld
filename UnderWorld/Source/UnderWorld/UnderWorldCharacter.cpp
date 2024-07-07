@@ -9,6 +9,8 @@
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "InputActionValue.h"
 #include "InventoryComponent.h"
 
@@ -79,6 +81,7 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 속도, 스태미나
 	if (IsRunning())
 	{
 		if (IsWalking() && Stamina > 0)
@@ -101,12 +104,64 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 		}
 	}
 
+	//UE_LOG(LogTemp, Log, TEXT("Character Speed :: %f"), Stamina);
+
+	// 스킬
 	if (AttackTimer > 0)
 		AttackTimer -= DeltaTime;
 	if (CounterAttackTimer > 0)
 		CounterAttackTimer -= DeltaTime;
 
-	//UE_LOG(LogTemp, Log, TEXT("Character Speed :: %f"), Stamina);
+	// Trace 체크
+	FVector Start;
+	FVector End;
+	TArray<AActor*> ToIgnore;
+	FHitResult OutHit;
+	bool IsHit;
+
+	// 1. 카메라 충돌
+	float MaxCameraArmLength = 150;
+	float CameraArmLength = MaxCameraArmLength;
+
+	Start = CameraBoom->GetComponentLocation();
+	End = UKismetMathLibrary::GetDirectionUnitVector(Start, FollowCamera->GetComponentLocation()) * MaxCameraArmLength + Start;
+	IsHit = UKismetSystemLibrary::SphereTraceSingle(
+		GetWorld(), Start, End, CameraBoom->ProbeSize,
+		ETraceTypeQuery::TraceTypeQuery1, true,
+		ToIgnore,
+		EDrawDebugTrace::None, OutHit, true);
+
+	if (IsHit)
+		CameraArmLength = UKismetMathLibrary::Clamp(OutHit.Distance - CameraBoom->ProbeSize, 30, MaxCameraArmLength);
+
+	CameraBoom->TargetArmLength = UKismetMathLibrary::FInterpTo(CameraBoom->TargetArmLength, CameraArmLength, DeltaTime, 10);
+
+	// 2. 아이템 탐지
+	Start = CameraBoom->GetComponentLocation();
+	End = UKismetMathLibrary::GetDirectionUnitVector(Start, FollowCamera->GetComponentLocation()) * -500 + Start;
+	IsHit = UKismetSystemLibrary::SphereTraceSingle(
+		GetWorld(), Start, End, 100,
+		ETraceTypeQuery::TraceTypeQuery3, true,
+		ToIgnore,
+		EDrawDebugTrace::None, OutHit, true);
+
+	if (IsHit)
+	{
+		FocusItem = Cast<AItemBase>(OutHit.GetActor());
+
+		if (IsValid(FocusItem))
+		{
+			FocusItem->SetOutline(true);
+		}
+	}
+	else 
+	{
+		if (IsValid(FocusItem))
+		{
+			FocusItem->SetOutline(false);
+			FocusItem = NULL;
+		}
+	}
 }
 
 void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -237,6 +292,17 @@ void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
 	}
 }
 
+void AUnderWorldCharacter::SetECharacterState(ECharacterState value)
+{
+	state = value;
+	OnChangeState.Broadcast(state);
+}
+
+void AUnderWorldCharacter::AnimEnd()
+{
+	SetECharacterState(ECharacterState::LAND);
+}
+
 void AUnderWorldCharacter::ItemPutOn_Implementation(EItemType type, int level)
 {
 	if (GetItemCount(type, level) == 0)
@@ -257,20 +323,31 @@ void AUnderWorldCharacter::ItemPutOn_Implementation(EItemType type, int level)
 	}
 }
 
-void AUnderWorldCharacter::SetECharacterState(ECharacterState value)
-{
-	state = value;
-	OnChangeState.Broadcast(state);
-}
-
-void AUnderWorldCharacter::AnimEnd()
-{
-	SetECharacterState(ECharacterState::LAND);
-}
-
 void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
 {
 	InventoryComponent->Remove(type, level);
+}
+
+void AUnderWorldCharacter::CheckSpeedUp(bool active)
+{
+	bool canSpeedUp = false;
+
+	if (active) {
+		float percent = 0;
+
+		if (hatLevel == 1)
+			percent = 10;
+		else if (hatLevel == 2)
+			percent = 15;
+		else if (hatLevel == 3)
+			percent = 20;
+
+		float random = FMath::RandRange(0.0f, 100.0f);
+		percent = (percent / 100) * 100;
+		canSpeedUp = 0 < random && random <= percent;
+	}
+
+	speedUp = canSpeedUp ? 1.1f : 1.0f;
 }
 
 void AUnderWorldCharacter::AttackByEnemy(bool front)
@@ -315,28 +392,6 @@ void AUnderWorldCharacter::Trap()
 
 	SetECharacterState(ECharacterState::TRAP);
 	GetCharacterMovement()->StopMovementImmediately();
-}
-
-void AUnderWorldCharacter::CheckSpeedUp(bool active)
-{
-	bool canSpeedUp = false;
-
-	if (active) {
-		float percent = 0;
-
-		if (hatLevel == 1)
-			percent = 10;
-		else if (hatLevel == 2)
-			percent = 15;
-		else if (hatLevel == 3)
-			percent = 20;
-
-		float random = FMath::RandRange(0.0f, 100.0f);
-		percent = (percent / 100) * 100;
-		canSpeedUp = 0 < random && random <= percent;
-	}
-
-	speedUp = canSpeedUp ? 1.1f : 1.0f;
 }
 
 bool AUnderWorldCharacter::IsWalking() const

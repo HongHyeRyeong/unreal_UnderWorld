@@ -40,6 +40,7 @@ protected:
 	UFUNCTION()
 	void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetOutline(bool active);
 };
