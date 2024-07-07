@@ -1,20 +1,20 @@
 #include "InventoryComponent.h"
-#include "Logging/LogMacros.h"
 #include "ItemBase.h"
+#include "Logging/LogMacros.h"
 
 UInventoryComponent::UInventoryComponent()
 {
 	keyMaxCount = 3;
 	GadgetMaxCount = 10;
 
-	for (int i = 0; i < (int)EItemType::E_Max; ++i)
+	for (int i = 0; i < (int)EItemType::MAX; ++i)
 	{
 		TArray<Item> items;
 
 		switch ((EItemType)i)
 		{
-			case EItemType::E_Key:
-			case EItemType::E_Gadget:
+			case EItemType::KEY:
+			case EItemType::GADGET:
 			{
 				Item item(0, 0);
 				items.Add(item);
@@ -22,109 +22,96 @@ UInventoryComponent::UInventoryComponent()
 			}
 		}
 
-		itemPickMap.Add((EItemType)i, items);
-	}
-}
-
-void UInventoryComponent::Remove(EItemType type, int level)
-{
-	if (type == EItemType::E_Key || type == EItemType::E_Gadget)
-	{
-		if (itemPickMap[type][0].count > 0)
-			itemPickMap[type][0].count--;
+		HaveItemMap.Add((EItemType)i, items);
 	}
 }
 
 void UInventoryComponent::BeginOverlap(AItemBase* item)
 {
-	itemOverlapArray.Add(item);
+	PickItemArray.Add(item);
 }
 
 void UInventoryComponent::EndOverlap(AItemBase* item)
 {
-	itemOverlapArray.Remove(item);
+	PickItemArray.Remove(item);
 }
 
 bool UInventoryComponent::Input()
 {
-	if (character->IsWalking())
-		return false;
-
-	bool pick = false;
-	if (itemOverlapArray.Num() > 0)
+	bool Pick = false;
+	if (PickItemArray.Num() > 0)
 	{
-		AItemBase* item = itemOverlapArray[0];
+		AItemBase* OverlapItem = PickItemArray[0];
 
-		switch (item->itemType)
+		switch (OverlapItem->Type)
 		{
-			case EItemType::E_Hat:
-			case EItemType::E_Bag:
+			case EItemType::HAT:
+			case EItemType::BAG:
 			{
-				bool isHave = false;
-				for (auto& haveItem : itemPickMap[item->itemType]) 
+				if (GetHaveItemCount(OverlapItem->Type, OverlapItem->Level) == 0)
 				{
-					if (haveItem.level == item->itemLevel)
-					{
-						isHave = true;
-						break;
-					}
-				}
+					Pick = true;
+					Item item(OverlapItem->Level, 1);
+					HaveItemMap[OverlapItem->Type].Add(item);
+					character->ItemPutOn_Implementation(OverlapItem->Type, OverlapItem->Level);
 
-				if (isHave == false) 
-				{
-					pick = true;
-					Item temp(item->itemLevel, 1);
-					itemPickMap[item->itemType].Add(temp);
-					character->ItemPutOn_Implementation(item->itemType, item->itemLevel);
 				}
 				break;
 			}
-			case EItemType::E_Key:
+			case EItemType::KEY:
 			{
-				if (itemPickMap[item->itemType][0].count < keyMaxCount)
+				if (GetHaveItemCount(EItemType::KEY, 0) < keyMaxCount)
 				{
-					pick = true;
-					itemPickMap[item->itemType][0].count++;
+					Pick = true;
+					HaveItemMap[EItemType::KEY][0].Count++;
 				}
 				break;
 			}
-			case EItemType::E_Gadget:
+			case EItemType::GADGET:
 			{
-				if (itemPickMap[item->itemType][0].count < GadgetMaxCount)
+				if (GetHaveItemCount(EItemType::GADGET, 0) < GadgetMaxCount)
 				{
-					pick = true;
-					itemPickMap[item->itemType][0].count++;
+					Pick = true;
+					HaveItemMap[EItemType::GADGET][0].Count++;
 				}
 				break;
 			}
 		}
 
-		if (pick)
+		if (Pick)
 		{
-			itemOverlapArray.RemoveAt(0);
-			item->Destroy();
+			PickItemArray.RemoveAt(0);
+			OverlapItem->Destroy();
 		}
 	}
 
-	return pick;
+	return Pick;
 }
 
-int UInventoryComponent::GetItemCount(EItemType type, int level)
+void UInventoryComponent::Remove(EItemType type, int level)
 {
-	switch (type)
+	if (type == EItemType::KEY || type == EItemType::GADGET)
 	{
-	case EItemType::E_Hat:
-	case EItemType::E_Bag:
+		if (HaveItemMap[type][0].Count > 0)
+			HaveItemMap[type][0].Count--;
+	}
+}
+
+int UInventoryComponent::GetHaveItemCount(EItemType Type, int Level)
+{
+	switch (Type)
 	{
-		bool isHave = false;
-		for (auto& haveItem : itemPickMap[type])
-			if (haveItem.level == level)
-				return haveItem.count;
+	case EItemType::HAT:
+	case EItemType::BAG:
+	{
+		for (auto& Item : HaveItemMap[Type])
+			if (Item.Level == Level)
+				return Item.Count;
 		break;
 	}
-	case EItemType::E_Key:
-	case EItemType::E_Gadget:
-		return itemPickMap[type][0].count;
+	case EItemType::KEY:
+	case EItemType::GADGET:
+		return HaveItemMap[Type][0].Count;
 	}
 	return 0;
 }

@@ -9,10 +9,10 @@
 #include "InventoryComponent.generated.h"
 
 struct Item {
-	int level;
-	int count;
+	int Level;
+	int Count;
 
-	Item(int level, int count) :level(level), count(count) {};
+	Item(int Level, int Count) :Level(Level), Count(Count) {};
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -28,13 +28,14 @@ public:
 	void EndOverlap(AItemBase* item);
 	bool Input();
 	void Remove(EItemType type, int level);
-	int GetItemCount(EItemType type, int level);
+	int GetHaveItemCount(EItemType type, int level);
 
 	AUnderWorldCharacter* character;
 
 private:
-	TArray<AItemBase*> itemOverlapArray;
-	TMap<EItemType, TArray<Item>> itemPickMap;
+	TArray<AItemBase*> PickItemArray;
+	TMap<EItemType, TArray<Item>> HaveItemMap;
+	TMap<EItemType, int> PutItemMap;
 
 	int keyMaxCount;
 	int GadgetMaxCount;

@@ -10,11 +10,11 @@
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
-	E_Hat = 0 UMETA(DisplayName = "Hat"),
-	E_Bag UMETA(DisplayName = "Bag"),
-	E_Key UMETA(DisplayName = "Key"),
-	E_Gadget UMETA(DisplayName = "Gadget"),
-	E_Max UMETA(DisplayName = "Max")
+	HAT,
+	BAG,
+	KEY,
+	GADGET,
+	MAX
 };
 
 UCLASS()
@@ -26,12 +26,18 @@ public:
 	AItemBase();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EItemType itemType = EItemType::E_Hat;
+	EItemType Type = EItemType::HAT;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int itemLevel = 1;
+	int Level = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UMaterialInterface*> Materials;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* StaticMesh;
+
 	UPROPERTY(Category = Collision, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* CollisionBox;	
 	
@@ -41,6 +47,6 @@ protected:
 	void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetOutline(bool active);
+	void SetLevel(int Level);
+	void SetOutline(bool Active);
 };

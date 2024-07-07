@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "ItemBase.h"
+#include "Components/SphereComponent.h"
 #include "UnderWorldCharacter.generated.h"
 
 class USpringArmComponent;
@@ -100,6 +101,18 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PrisonAction;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* HatMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* BagMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	USphereComponent* AttackCollision;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	USphereComponent* SpeedUpCollision;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInventoryComponent* InventoryComponent;
@@ -111,7 +124,7 @@ public:
 	float hp = MaxHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float speedUp = 1.0f;
+	float SpeedUp = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float installSpeed = 0.1f;
@@ -155,8 +168,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ItemRemove(EItemType type, int level);
 
+	UFUNCTION()
+	void OnBeginOverlapSpeedUpCollision(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnEndOverlapSpeedUpCollision(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 	UFUNCTION(BlueprintCallable)
-	void CheckSpeedUp(bool active);
+	void CheckSpeedUp(bool Active);
+
+	UFUNCTION()
+	void OnBeginOverlapAttackCollision(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintCallable)
 	void AttackByEnemy(bool front);

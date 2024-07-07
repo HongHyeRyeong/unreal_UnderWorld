@@ -13,6 +13,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "InputActionValue.h"
 #include "InventoryComponent.h"
+#include "EnemyCharacter.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -21,42 +22,60 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 AUnderWorldCharacter::AUnderWorldCharacter()
 {
-	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(15.f, 30.0f);
+	GetCapsuleComponent()->bReceivesDecals = false;
+	GetMesh()->SetReceivesDecals(false);
 
-	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
-
-	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
-	// instead of recompiling to adjust them
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * speedUp;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * SpeedUp;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->TargetArmLength = 150.0f;
+	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->bDoCollisionTest = false;
 
-	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false;
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	HatMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HatMesh"));
+	HatMesh->SetupAttachment(GetMesh(), FName("Hat"));
+	HatMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	HatMesh->SetVisibility(false);
+	HatMesh->bReceivesDecals = false;
 
-	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Item Inventory"));
+	BagMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BagMesh"));
+	BagMesh->SetupAttachment(GetMesh(), FName("Bag"));
+	BagMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	BagMesh->SetVisibility(false);
+	BagMesh->bReceivesDecals = false;
+
+	AttackCollision = CreateDefaultSubobject<USphereComponent>(TEXT("AttackCollision"));
+	AttackCollision->SetupAttachment(GetMesh(), FName("Bip001-L-Foot"));
+	AttackCollision->SetSphereRadius(12);
+	AttackCollision->SetCollisionProfileName(TEXT("OverlapOnlyEnemy"));
+	AttackCollision->OnComponentBeginOverlap.AddDynamic(this, &AUnderWorldCharacter::OnBeginOverlapAttackCollision);
+	AttackCollision->SetGenerateOverlapEvents(false);
+
+	SpeedUpCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SpeedUpCollision"));
+	SpeedUpCollision->SetupAttachment(RootComponent);
+	SpeedUpCollision->SetSphereRadius(300);
+	SpeedUpCollision->SetCollisionProfileName(TEXT("OverlapOnlyEnemy"));
+	SpeedUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AUnderWorldCharacter::OnBeginOverlapSpeedUpCollision);
+	SpeedUpCollision->OnComponentEndOverlap.AddDynamic(this, &AUnderWorldCharacter::OnEndOverlapSpeedUpCollision);
+
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("ItemInventory"));
 	InventoryComponent->character = this;
 
 	Stamina = MaxStamina;
@@ -64,10 +83,8 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 
 void AUnderWorldCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
 
-	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -90,7 +107,7 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
-			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * speedUp;
+			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * SpeedUp;
 		}
 	}
 	else
@@ -103,8 +120,6 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 				Stamina = MaxStamina;
 		}
 	}
-
-	//UE_LOG(LogTemp, Log, TEXT("Character Speed :: %f"), Stamina);
 
 	// ½ºÅ³
 	if (AttackTimer > 0)
@@ -221,19 +236,22 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 	if (active)
 	{
 		if (IsWalking() && Stamina > 0)
-			GetCharacterMovement()->MaxWalkSpeed = RunSpeed * speedUp;
+			GetCharacterMovement()->MaxWalkSpeed = RunSpeed * SpeedUp;
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * speedUp;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * SpeedUp;
 	}
 }
 
 void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
-	if (InventoryComponent->Input())
+	if (IsWalking()) 
 	{
-		SetECharacterState(ECharacterState::ITEM_PICK);
+		if (InventoryComponent->Input())
+		{
+			SetECharacterState(ECharacterState::ITEM_PICK);
+		}
 	}
 }
 
@@ -285,7 +303,7 @@ void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
 	if (active && beInPrison && state == ECharacterState::LAND)
 	{
 		OnPrison.Broadcast();
-		ItemRemove(EItemType::E_Key, 1);
+		ItemRemove(EItemType::KEY, 1);
 
 		beInPrison = false;
 		hp = 100;
@@ -295,6 +313,8 @@ void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
 void AUnderWorldCharacter::SetECharacterState(ECharacterState value)
 {
 	state = value;
+	AttackCollision->SetGenerateOverlapEvents(value == ECharacterState::ATTACK);
+
 	OnChangeState.Broadcast(state);
 }
 
@@ -310,10 +330,10 @@ void AUnderWorldCharacter::ItemPutOn_Implementation(EItemType type, int level)
 
 	ItemPutOn(type, level);
 
-	if (type == EItemType::E_Hat) {
+	if (type == EItemType::HAT) {
 		hatLevel = level;
 	}
-	else if(type == EItemType::E_Bag) {
+	else if(type == EItemType::BAG) {
 		if (level == 1)
 			installSpeed = installDefaultSpeed * 1.1f;
 		else if (level == 2)
@@ -328,26 +348,45 @@ void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
 	InventoryComponent->Remove(type, level);
 }
 
-void AUnderWorldCharacter::CheckSpeedUp(bool active)
+void AUnderWorldCharacter::OnBeginOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	bool canSpeedUp = false;
+	CheckSpeedUp(true);
+}
 
-	if (active) {
-		float percent = 0;
+void AUnderWorldCharacter::OnEndOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	CheckSpeedUp(false);
+}
+
+void AUnderWorldCharacter::CheckSpeedUp(bool Active)
+{
+	bool bSpeedUp = false;
+
+	if (Active) {
+		float Percent = 0;
 
 		if (hatLevel == 1)
-			percent = 10;
+			Percent = 10;
 		else if (hatLevel == 2)
-			percent = 15;
+			Percent = 15;
 		else if (hatLevel == 3)
-			percent = 20;
+			Percent = 20;
 
-		float random = FMath::RandRange(0.0f, 100.0f);
-		percent = (percent / 100) * 100;
-		canSpeedUp = 0 < random && random <= percent;
+		float Random = FMath::RandRange(0.0f, 100.0f);
+		Percent = (Percent / 100) * 100;
+		bSpeedUp = 0 < Random && Random <= Percent;
 	}
 
-	speedUp = canSpeedUp ? 1.1f : 1.0f;
+	SpeedUp = bSpeedUp ? 1.1f : 1.0f;
+}
+
+void AUnderWorldCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AEnemyCharacter* Enemy = Cast<AEnemyCharacter>(OtherActor);
+	if (Enemy)
+	{
+		Enemy->AttackBySurvivor();
+	}
 }
 
 void AUnderWorldCharacter::AttackByEnemy(bool front)
@@ -401,20 +440,20 @@ bool AUnderWorldCharacter::IsWalking() const
 
 bool AUnderWorldCharacter::IsRunning() const
 {
-	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed * speedUp;
+	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed * SpeedUp;
 }
 
 bool AUnderWorldCharacter::IsHaveGadget() const
 {
-	return GetItemCount(EItemType::E_Gadget, 0) > 0;
+	return GetItemCount(EItemType::GADGET, 0) > 0;
 }
 
 bool AUnderWorldCharacter::IsHaveKey() const
 {
-	return GetItemCount(EItemType::E_Key, 0) > 0;
+	return GetItemCount(EItemType::KEY, 0) > 0;
 }
 
 int AUnderWorldCharacter::GetItemCount(EItemType type, int level) const
 {
-	return InventoryComponent->GetItemCount(type, level);
+	return InventoryComponent->GetHaveItemCount(type, level);
 }
