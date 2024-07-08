@@ -160,22 +160,17 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 		ToIgnore,
 		EDrawDebugTrace::None, OutHit, true);
 
+	if (IsValid(FocusItem))
+	{
+		FocusItem->SetOutline(false);
+		FocusItem = NULL;
+	}
+
 	if (IsHit)
 	{
 		FocusItem = Cast<AItemBase>(OutHit.GetActor());
-
 		if (IsValid(FocusItem))
-		{
 			FocusItem->SetOutline(true);
-		}
-	}
-	else 
-	{
-		if (IsValid(FocusItem))
-		{
-			FocusItem->SetOutline(false);
-			FocusItem = NULL;
-		}
 	}
 }
 
@@ -246,7 +241,7 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 
 void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 {
-	if (IsWalking()) 
+	if (state == ECharacterState::LAND)
 	{
 		if (InventoryComponent->Input())
 		{
