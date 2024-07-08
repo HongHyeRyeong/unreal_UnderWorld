@@ -30,18 +30,18 @@ void AItemBase::SetOutline(bool Active)
 
 void AItemBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    AUnderWorldCharacter* character = Cast<AUnderWorldCharacter>(OtherActor);
-    if (character)
+    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    if (OtherCharacter)
     {
-        character->InventoryComponent->BeginOverlap(this);
+        OtherCharacter->InventoryComponent->BeginOverlap(this);
     }
 }
 
 void AItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    AUnderWorldCharacter* character = Cast<AUnderWorldCharacter>(OtherActor);
-    if (character)
+    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    if (OtherCharacter)
     {
-        character->InventoryComponent->EndOverlap(this);
+        OtherCharacter->InventoryComponent->EndOverlap(this);
     }
 }
