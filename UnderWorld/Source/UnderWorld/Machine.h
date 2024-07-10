@@ -20,12 +20,20 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void SetInput(bool Active);
+
+	UFUNCTION(BlueprintCallable)
+	FTransform GetRandomTransform(float Radius);
+
 public:	
 	virtual void Tick(float DeltaTime) override;
-	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	void SetInput(bool Active);
-	FTransform GetRandomTransform(float Radius);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;
@@ -42,7 +50,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USpotLightComponent* CompleteLight;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USoundBase* InstallSound;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

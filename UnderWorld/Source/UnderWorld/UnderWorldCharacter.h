@@ -127,7 +127,7 @@ public:
 	float SpeedUp = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float installSpeed = 0.1f;
+	float installSpeed = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Stamina = MaxStamina;

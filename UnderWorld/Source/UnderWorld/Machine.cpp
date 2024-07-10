@@ -24,16 +24,28 @@ AMachine::AMachine()
 
     InstallParticleSystem = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("InstallParticleSystem"));
     InstallParticleSystem->SetupAttachment(RootComponent);
-    InstallParticleSystem->SetVisibility(true);
 
     CompleteLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("CompleteLight"));
     CompleteLight->SetupAttachment(RootComponent);
-    CompleteLight->SetVisibility(false);
 }
 
 void AMachine::BeginPlay()
 {
-	Super::BeginPlay();	
+	Super::BeginPlay();
+
+    InstallCount = 0;
+    InstallCompleteCount = 3;
+
+    TArray<UBoxComponent*> InstallCollisions;
+    this->GetComponents<UBoxComponent>(InstallCollisions);
+    for (UBoxComponent* Collision : InstallCollisions)
+    {
+        Collision->OnComponentBeginOverlap.AddDynamic(this, &AMachine::OnBeginOverlap);
+        Collision->OnComponentEndOverlap.AddDynamic(this, &AMachine::OnEndOverlap);
+    }
+
+    InstallParticleSystem->SetVisibility(true);
+    CompleteLight->SetVisibility(false);
 }
 
 void AMachine::Tick(float DeltaTime)
@@ -55,13 +67,13 @@ void AMachine::Tick(float DeltaTime)
 
             Character->SetECharacterState(ECharacterState::MACHINE_INSTALL);
 
-            if (IsValid(InstallAudioComponent))
+            if (IsValid(InstallAudioComponent) == false)
                 InstallAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), InstallSound);
             InstallAudioComponent->FadeIn(0.5f);
         }
 
         InstallGauge += Character->installSpeed * DeltaTime;
-        MachineWhellRoot->AddLocalRotation(FRotator(2, 0, 0));
+        MachineWhellRoot->AddLocalRotation(FRotator(0, 0, 2));
 
         if (InstallGauge >= 100)
         {
@@ -117,20 +129,12 @@ void AMachine::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 
 void AMachine::SetInput(bool Active)
 {
-    bIsInput = Active;
+    bIsInput = bIsOverlap && Active;
 }
 
 FTransform AMachine::GetRandomTransform(float Radius)
 {
-    //UNavigationSystemV1* NavigationArea = FNavigationSystem::GetCurrent<UNavigationSystemV1>(UGameplayStatics::GetPlayerPawn(this->GetWorld(), 0)->GetWorld());
-    //FNavLocation NavigationLocation;
-
-    //if (NavigationArea != nullptr)
-    //{
-    //    NavigationArea->GetRandomReachablePointInRadius(EnemySpawnPoint->GetComponentLocation(), Radius, NavigationLocation);
-    //    FTransform RandomTransform;
-    //    return UKismetMathLibrary::MakeTransform(NavigationLocation, UKismetMathLibrary::FindLookAtRotation(NavigationLocation, EnemySpawnPoint->GetComponentLocation()));
-    //}
-
-    return UKismetMathLibrary::MakeTransform(EnemySpawnPoint->GetComponentLocation(), FRotator());
+    FNavLocation NavigationLocation;
+    UNavigationSystemV1::GetNavigationSystem(GetWorld())->GetRandomReachablePointInRadius(EnemySpawnPoint->GetComponentLocation(), Radius, NavigationLocation);
+    return UKismetMathLibrary::MakeTransform(NavigationLocation, UKismetMathLibrary::FindLookAtRotation(NavigationLocation, EnemySpawnPoint->GetComponentLocation()));
 }

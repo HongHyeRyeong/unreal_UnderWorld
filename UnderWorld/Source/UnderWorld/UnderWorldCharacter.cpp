@@ -77,13 +77,14 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("ItemInventory"));
 	InventoryComponent->character = this;
-
-	Stamina = MaxStamina;
 }
 
 void AUnderWorldCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	installSpeed = 10.0f;
+	Stamina = MaxStamina;
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -254,8 +255,8 @@ void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
 {
 	if (state == ECharacterState::LAND || state == ECharacterState::MACHINE_INSTALL)
 	{
-		bool active = Value.Get<bool>();
-		OnInputMachineInstall.Broadcast(active);
+		bool Active = Value.Get<bool>();
+		OnInputMachineInstall.Broadcast(Active);
 	}
 }
 
