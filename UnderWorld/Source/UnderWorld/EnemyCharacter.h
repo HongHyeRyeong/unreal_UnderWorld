@@ -22,4 +22,5 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void AttackBySurvivor();
+	bool Teleport(float Radius);
 };

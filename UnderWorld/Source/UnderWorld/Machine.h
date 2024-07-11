@@ -29,11 +29,11 @@ protected:
 	UFUNCTION()
 	void SetInput(bool Active);
 
-	UFUNCTION(BlueprintCallable)
-	FTransform GetRandomTransform(float Radius);
-
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+	FTransform GetRandomTransform(float Radius);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;

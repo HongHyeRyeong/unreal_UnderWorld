@@ -28,3 +28,8 @@ void AEnemyCharacter::AttackBySurvivor()
 {
 
 }
+
+bool AEnemyCharacter::Teleport(float Radius)
+{
+	return true;
+}

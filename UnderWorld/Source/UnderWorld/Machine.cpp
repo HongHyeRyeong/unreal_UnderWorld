@@ -8,6 +8,7 @@
 #include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "UnderWorldGameMode.h"
 
 AMachine::AMachine()
 {
@@ -97,7 +98,9 @@ void AMachine::Tick(float DeltaTime)
             {
                 InstallParticleSystem->SetVisibility(false);
                 CompleteLight->SetVisibility(true);
-                // 게임모드 Machine Complete 호출
+
+                AUnderWorldGameMode* GameMode = Cast<AUnderWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+                GameMode->CompleteMachineInstall();
             }
         }
     }
