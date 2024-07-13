@@ -118,6 +118,9 @@ public:
 	UInventoryComponent* InventoryComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UMaterialInterface*> ItemMaterials;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ECharacterState state = ECharacterState::LAND;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -144,12 +147,11 @@ public:
 	const int MaxHP = 100;
 	const int WalkSpeed = 500;
 	const int RunSpeed = 700;
-	const float installDefaultSpeed = 0.1f;
+	const float installDefaultSpeed = 10.0f;
 	float AttackTime = 3;
 	float CounterAttackTime = 5;
 
 	AItemBase* FocusItem;
-	int hatLevel = 0;
 	bool beInPrison = 0;
 
 public:
@@ -159,11 +161,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AnimEnd();
 
-	UFUNCTION(BlueprintNativeEvent)
-	void ItemPutOn(EItemType type, int level);
-
 	UFUNCTION(BlueprintCallable)
-	virtual void ItemPutOn_Implementation(EItemType type, int level);
+	void ItemPutOn(EItemType type, int level);
 
 	UFUNCTION(BlueprintCallable)
 	void ItemRemove(EItemType type, int level);
@@ -174,9 +173,6 @@ public:
 	UFUNCTION()
 	void OnEndOverlapSpeedUpCollision(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UFUNCTION(BlueprintCallable)
-	void CheckSpeedUp(bool Active);
-
 	UFUNCTION()
 	void OnBeginOverlapAttackCollision(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -184,10 +180,7 @@ public:
 	void AttackByEnemy(bool front);
 
 	UFUNCTION(BlueprintCallable)
-	void Trap();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void FindNearestPrison();
+	void AttackByTrap();
 
 	UFUNCTION(BlueprintPure)
 	bool IsWalking() const;
@@ -214,5 +207,5 @@ public:
 	FXFDeleBool OnInputMachineInstall;
 
 	UPROPERTY(BlueprintAssignable)
-	FXFDele OnPrison;
+	FXFDele OnInputPrison;
 };

@@ -23,6 +23,7 @@ UInventoryComponent::UInventoryComponent()
 		}
 
 		HaveItemMap.Add((EItemType)i, items);
+		PutItemMap.Add((EItemType)i, 0);
 	}
 }
 
@@ -54,8 +55,7 @@ bool UInventoryComponent::Input()
 					Pick = true;
 					Item item(OverlapItem->Level, 1);
 					HaveItemMap[OverlapItem->Type].Add(item);
-					character->ItemPutOn_Implementation(OverlapItem->Type, OverlapItem->Level);
-
+					character->ItemPutOn(OverlapItem->Type, OverlapItem->Level);
 				}
 				break;
 			}
@@ -89,6 +89,11 @@ bool UInventoryComponent::Input()
 	return Pick;
 }
 
+void UInventoryComponent::PutOn(EItemType type, int level)
+{
+	PutItemMap[type] = level;
+}
+
 void UInventoryComponent::Remove(EItemType type, int level)
 {
 	if (type == EItemType::KEY || type == EItemType::GADGET)
@@ -115,4 +120,9 @@ int UInventoryComponent::GetHaveItemCount(EItemType Type, int Level)
 		return HaveItemMap[Type][0].Count;
 	}
 	return 0;
+}
+
+int UInventoryComponent::GetPutOnItem(EItemType Type)
+{
+	return PutItemMap[Type];
 }

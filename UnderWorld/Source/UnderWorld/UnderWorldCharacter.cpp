@@ -11,9 +11,11 @@
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "InputActionValue.h"
 #include "InventoryComponent.h"
 #include "EnemyCharacter.h"
+#include "Prison.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -298,19 +300,22 @@ void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
 
 	if (active && beInPrison && state == ECharacterState::LAND)
 	{
-		OnPrison.Broadcast();
-		ItemRemove(EItemType::KEY, 1);
+		OnInputPrison.Broadcast();
 
 		beInPrison = false;
 		hp = 100;
+		ItemRemove(EItemType::KEY, 1);
 	}
 }
 
 void AUnderWorldCharacter::SetECharacterState(ECharacterState value)
 {
-	state = value;
+	if (state == ECharacterState::MACHINE_INSTALL)
+		OnInputMachineInstall.Broadcast(false);
+
 	AttackCollision->SetGenerateOverlapEvents(value == ECharacterState::ATTACK);
 
+	state = value;
 	OnChangeState.Broadcast(state);
 }
 
@@ -319,53 +324,48 @@ void AUnderWorldCharacter::AnimEnd()
 	SetECharacterState(ECharacterState::LAND);
 }
 
-void AUnderWorldCharacter::ItemPutOn_Implementation(EItemType type, int level)
+void AUnderWorldCharacter::ItemPutOn(EItemType Type, int Level)
 {
-	if (GetItemCount(type, level) == 0)
+	if (GetItemCount(Type, Level) == 0)
 		return;
 
-	ItemPutOn(type, level);
+	InventoryComponent->PutOn(Type, Level);
 
-	if (type == EItemType::HAT) {
-		hatLevel = level;
+	if (Type == EItemType::HAT) {
+		HatMesh->SetVisibility(true);
+		HatMesh->SetMaterial(0, ItemMaterials[Level - 1]);
 	}
-	else if(type == EItemType::BAG) {
-		if (level == 1)
+	else if (Type == EItemType::BAG) {
+		BagMesh->SetVisibility(true);
+		BagMesh->SetMaterial(0, ItemMaterials[Level - 1]);
+
+		if (Level == 1)
 			installSpeed = installDefaultSpeed * 1.1f;
-		else if (level == 2)
+		else if (Level == 2)
 			installSpeed = installDefaultSpeed * 1.3f;
 		else
 			installSpeed = installDefaultSpeed;
 	}
 }
 
-void AUnderWorldCharacter::ItemRemove(EItemType type, int level)
+void AUnderWorldCharacter::ItemRemove(EItemType Type, int Level)
 {
-	InventoryComponent->Remove(type, level);
+	InventoryComponent->Remove(Type, Level);
 }
 
 void AUnderWorldCharacter::OnBeginOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	CheckSpeedUp(true);
-}
-
-void AUnderWorldCharacter::OnEndOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	CheckSpeedUp(false);
-}
-
-void AUnderWorldCharacter::CheckSpeedUp(bool Active)
-{
 	bool bSpeedUp = false;
+	int HatLevel = InventoryComponent->GetPutOnItem(EItemType::HAT);
 
-	if (Active) {
+	if (HatLevel > 0) {
 		float Percent = 0;
 
-		if (hatLevel == 1)
+		if (HatLevel == 1)
 			Percent = 10;
-		else if (hatLevel == 2)
+		else if (HatLevel == 2)
 			Percent = 15;
-		else if (hatLevel == 3)
+		else if (HatLevel == 3)
 			Percent = 20;
 
 		float Random = FMath::RandRange(0.0f, 100.0f);
@@ -374,6 +374,11 @@ void AUnderWorldCharacter::CheckSpeedUp(bool Active)
 	}
 
 	SpeedUp = bSpeedUp ? 1.1f : 1.0f;
+}
+
+void AUnderWorldCharacter::OnEndOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	SpeedUp = 1.0f;
 }
 
 void AUnderWorldCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -396,8 +401,6 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 	{
 		return;
 	}
-	else if (state == ECharacterState::MACHINE_INSTALL)
-		OnInputMachineInstall.Broadcast(false);
 
 	hp -= 50.0f;
 
@@ -405,13 +408,21 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 	{
 		if (IsHaveKey()) 
 		{
-			beInPrison = true;
 			SetECharacterState(ECharacterState::DOWN);
-			FindNearestPrison();
+
+			beInPrison = true;
+			TArray<AActor*> FoundActors;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), APrison::StaticClass(), FoundActors);
+
+			float Distance;
+			AActor* NearestActor = UGameplayStatics::FindNearestActor(GetActorLocation(), FoundActors, Distance);
+
+			SetActorLocation(NearestActor->GetActorLocation());
 		}
 		else
 		{
 			SetECharacterState(ECharacterState::DIE);
+			// TODO: 게임모드 Restart Game 호출
 		}
 	}
 	else
@@ -420,11 +431,8 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 	}
 }
 
-void AUnderWorldCharacter::Trap()
+void AUnderWorldCharacter::AttackByTrap()
 {
-	if (state == ECharacterState::MACHINE_INSTALL)
-		OnInputMachineInstall.Broadcast(false);
-
 	SetECharacterState(ECharacterState::TRAP);
 	GetCharacterMovement()->StopMovementImmediately();
 }

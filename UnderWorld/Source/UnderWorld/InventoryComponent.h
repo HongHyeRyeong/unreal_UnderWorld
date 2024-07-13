@@ -27,8 +27,10 @@ public:
 	void BeginOverlap(AItemBase* item);
 	void EndOverlap(AItemBase* item);
 	bool Input();
+	void PutOn(EItemType type, int level);
 	void Remove(EItemType type, int level);
 	int GetHaveItemCount(EItemType type, int level);
+	int GetPutOnItem(EItemType type);
 
 	AUnderWorldCharacter* character;
 
