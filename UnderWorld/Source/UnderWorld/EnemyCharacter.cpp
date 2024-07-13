@@ -29,7 +29,7 @@ void AEnemyCharacter::AttackBySurvivor()
 
 }
 
-bool AEnemyCharacter::Teleport(float Radius)
+bool AEnemyCharacter::Teleport(FTransform Transform)
 {
 	return true;
 }

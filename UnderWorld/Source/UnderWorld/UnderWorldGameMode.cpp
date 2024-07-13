@@ -64,7 +64,7 @@ void AUnderWorldGameMode::TeleportEnemyByMachine()
 	}
 
 	float Radius = FoundMachine->InstallCount > (FoundMachine->InstallCompleteCount - 3) ? 700 : 1200;
-	bool bIsSuccess = EnemyCharacter->Teleport(Radius);
+	bool bIsSuccess = EnemyCharacter->Teleport(FoundMachine->GetRandomTransform(Radius));
 
 	if (bIsSuccess == false)
 		TeleportEnemyByMachine();
