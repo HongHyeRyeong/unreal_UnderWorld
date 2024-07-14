@@ -1,6 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "EnemyCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AEnemyCharacter::AEnemyCharacter()
 {
@@ -22,6 +21,28 @@ void AEnemyCharacter::Tick(float DeltaTime)
 void AEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void AEnemyCharacter::StartGame(int StartStage)
+{
+	Stage = StartStage;
+
+	// TODO: AI 컨트롤러 StartGame 호출
+
+	if (Stage == 3)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 150;
+	}
+}
+
+void AEnemyCharacter::RestartGame()
+{
+	// TODO: AI 컨트롤러 RestartGame 호출
+}
+
+void AEnemyCharacter::ClearGame()
+{
+	// TODO: Die 애니메이션 호출
 }
 
 void AEnemyCharacter::AttackBySurvivor()

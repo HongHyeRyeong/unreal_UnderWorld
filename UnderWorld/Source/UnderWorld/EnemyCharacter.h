@@ -21,6 +21,18 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(BlueprintReadWrite)
+	int Stage = 0;
+
+	UFUNCTION()
+	void StartGame(int StartStage);
+
+	UFUNCTION()
+	void RestartGame();
+
+	UFUNCTION()
+	void ClearGame();
+
 	void AttackBySurvivor();
 	bool Teleport(FTransform Transform);
 };
