@@ -307,4 +307,5 @@ void AUnderWorldGameMode::SetDoorReachPoint()
 {
 	int RandomIndex = FMath::RandRange(0, Doors.Num());
 	DoorReachPoint->SetActorLocation(Doors[RandomIndex]->GetActorLocation());
+	Doors[RandomIndex]->bIsReachDoor = true;
 }
