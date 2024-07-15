@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "UnderWorldCharacter.h"
+#include "Components/AudioComponent.h"
 #include "CharacterAnimInstance.generated.h"
 
 /**
@@ -22,16 +23,19 @@ public:
 private:
 	AUnderWorldCharacter* Character;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	ECharacterState CharacterState;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	int LandState;
 
 public:
+	UPROPERTY(EditAnywhere)
+	USoundBase* WalkSound;
+
+	UPROPERTY()
+	UAudioComponent* WalkAudioComponent;
+
 	UFUNCTION(BlueprintCallable)
 	void FinishedActionAnimation();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayLandSound();
 };
