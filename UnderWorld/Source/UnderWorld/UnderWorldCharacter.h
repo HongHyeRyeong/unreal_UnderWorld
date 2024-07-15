@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "ItemBase.h"
 #include "Components/SphereComponent.h"
+#include "Components/AudioComponent.h"
 #include "UnderWorldCharacter.generated.h"
 
 class USpringArmComponent;
@@ -112,6 +113,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USphereComponent* SpeedUpCollision;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* WalkSound;
+
+	UPROPERTY()
+	UAudioComponent* WalkAudioComponent;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

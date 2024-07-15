@@ -16,6 +16,7 @@
 #include "InventoryComponent.h"
 #include "EnemyCharacter.h"
 #include "Prison.h"
+#include "Sound/SoundBase.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -79,6 +80,8 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("ItemInventory"));
 	InventoryComponent->character = this;
+
+	WalkAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), WalkSound);
 }
 
 void AUnderWorldCharacter::BeginPlay()
@@ -174,6 +177,22 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 		FocusItem = Cast<AItemBase>(OutHit.GetActor());
 		if (IsValid(FocusItem))
 			FocusItem->SetOutline(true);
+	}
+
+	// »ç¿îµå
+	if (state == ECharacterState::LAND && IsWalking())
+	{
+		if (WalkAudioComponent->IsPlaying() == false)
+			WalkAudioComponent->Play();
+
+		float PitchMultiplier = IsWalking() ? 0.9f : 1.2f;
+		if (WalkAudioComponent->PitchMultiplier != PitchMultiplier)
+			WalkAudioComponent->SetPitchMultiplier(PitchMultiplier);
+	}
+	else
+	{
+		if (WalkAudioComponent->IsPlaying())
+			WalkAudioComponent->Stop();
 	}
 }
 
@@ -386,21 +405,14 @@ void AUnderWorldCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* Ov
 	AEnemyCharacter* Enemy = Cast<AEnemyCharacter>(OtherActor);
 	if (Enemy)
 	{
-		Enemy->AttackBySurvivor();
+		OnCounterAttackToEnemy.AddDynamic(Enemy, &AEnemyCharacter::AttackBySurvivor);
 	}
 }
 
 void AUnderWorldCharacter::AttackByEnemy(bool front)
 {
-	if (state == ECharacterState::COUNTER_ATTACK)
-	{
-		OnCounterAttackToEnemy.Broadcast();
+	if (state == ECharacterState::AVOID || state == ECharacterState::DOWN || state == ECharacterState::DOWN_FRONT || state == ECharacterState::DIE)
 		return;
-	}
-	else if (state == ECharacterState::AVOID || state == ECharacterState::DOWN || state == ECharacterState::DOWN_FRONT || state == ECharacterState::DIE)
-	{
-		return;
-	}
 
 	hp -= 50.0f;
 

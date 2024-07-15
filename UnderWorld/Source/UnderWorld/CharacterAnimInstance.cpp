@@ -3,12 +3,6 @@
 
 #include "CharacterAnimInstance.h"
 #include "UnderWorldCharacter.h"
-#include "Sound/SoundBase.h"
-#include "Kismet/GameplayStatics.h"
-
-UCharacterAnimInstance::UCharacterAnimInstance()
-{
-}
 
 void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -18,8 +12,6 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		auto Pawn = TryGetPawnOwner();
 		Character = Cast<AUnderWorldCharacter>(Pawn);
-
-		WalkAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), WalkSound);
 	}
 
 	if (IsValid(Character))
@@ -35,24 +27,13 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			{
 				LandState = 2;
 			}
-
-		}
-
-		if (CharacterState == ECharacterState::LAND && LandState != 0)
-		{
-			if (WalkAudioComponent->IsPlaying() == false)
-				WalkAudioComponent->Play();
-
-			float PitchMultiplier = LandState == 1 ? 0.9f : 1.2f;
-			if (WalkAudioComponent->PitchMultiplier != PitchMultiplier)
-				WalkAudioComponent->SetPitchMultiplier(PitchMultiplier);
-		}
-		else
-		{
-			if (WalkAudioComponent->IsPlaying())
-				WalkAudioComponent->Stop();
 		}
 	}
+}
+
+void UCharacterAnimInstance::AttackToEnemy()
+{
+	Character->OnCounterAttackToEnemy.Broadcast();
 }
 
 void UCharacterAnimInstance::FinishedActionAnimation()
