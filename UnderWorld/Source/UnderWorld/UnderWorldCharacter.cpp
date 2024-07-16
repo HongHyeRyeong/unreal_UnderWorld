@@ -17,6 +17,7 @@
 #include "EnemyCharacter.h"
 #include "Prison.h"
 #include "Sound/SoundBase.h"
+#include "UnderWorldGameMode.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -434,7 +435,7 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 		else
 		{
 			SetECharacterState(ECharacterState::DIE);
-			// TODO: 게임모드 Restart Game 호출
+			Cast<AUnderWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->RestartGame();
 		}
 	}
 	else

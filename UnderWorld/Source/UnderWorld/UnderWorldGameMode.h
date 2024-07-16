@@ -21,25 +21,25 @@ protected:
 	UPROPERTY()
 	UUserWidget* CurrentWidget;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "UMG")
+	UPROPERTY(EditAnyWhere, Category = "UMG")
 	TSubclassOf<UUserWidget> StartWidget;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "UMG")
+	UPROPERTY(EditAnyWhere, Category = "UMG")
 	TSubclassOf<UUserWidget> GameWidget;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "UMG")
+	UPROPERTY(EditAnyWhere, Category = "UMG")
 	TSubclassOf<UUserWidget> ClearWidget;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	USoundBase* StartSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	USoundBase* BGMSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	USoundBase* RestartSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	USoundBase* ClearSound;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -75,7 +75,7 @@ public:
 	UPROPERTY()
 	ASpawnPoint* DoorReachPoint;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	UAudioComponent* BGMAudioComponent;
 
 	UFUNCTION()

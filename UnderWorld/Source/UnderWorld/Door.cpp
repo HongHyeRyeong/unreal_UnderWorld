@@ -1,6 +1,7 @@
 #include "Door.h"
 #include "Kismet/GameplayStatics.h"
 #include "UnderWorldGameMode.h"
+#include "EnemyAIController.h"
 
 ADoor::ADoor()
 {
@@ -101,7 +102,7 @@ void ADoor::OnBeginOverlapComeInEnemy(UPrimitiveComponent* OverlappedComp, AActo
 			Door->ComeInEnemy();
 		}
 
-		// TODO: Enemy Door Insise »£√‚
+		Cast<AEnemyAIController>(EnemyCharacter->GetController())->ComeInEnemy();
 	}
 }
 

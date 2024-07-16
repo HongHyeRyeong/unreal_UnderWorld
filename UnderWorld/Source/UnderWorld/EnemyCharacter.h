@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Components/SphereComponent.h"
 #include "UnderWorldCharacter.h"
+#include "Trap.h"
 #include "EnemyCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -30,14 +31,23 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ATrap> TrapClass;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* TeleportSound;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> TeleportEffectClass;
+
 public:	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite)
 	EEnemyCharacterState State = EEnemyCharacterState::LAND;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY()
 	int Stage = 0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	USphereComponent* AttackCollision;
 
 	UPROPERTY()
@@ -63,6 +73,12 @@ public:
 
 	UFUNCTION()
 	bool Teleport(FTransform Transform);
+
+	UFUNCTION(BlueprintCallable)
+	void InstallTrap();
+
+	UFUNCTION(BlueprintCallable)
+	void SetMaxWalkSpeed(float MaxWalkSpeed);
 
 	UFUNCTION()
 	bool IsWalking() const;

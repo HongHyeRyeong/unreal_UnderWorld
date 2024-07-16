@@ -3,6 +3,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EnemyAIController.h"
 #include "UnderWorldCharacter.h"
+#include "Trap.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -54,22 +55,20 @@ void AEnemyCharacter::StartGame(int StartStage)
 {
 	Stage = StartStage;
 
-	// TODO: AI 컨트롤러 StartGame 호출
+	Cast<AEnemyAIController>(GetController())->StartGame(StartStage);
 
 	if (Stage == 3)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = 150;
-	}
+		SetMaxWalkSpeed(150);
 }
 
 void AEnemyCharacter::RestartGame()
 {
-	// TODO: AI 컨트롤러 RestartGame 호출
+	Cast<AEnemyAIController>(GetController())->RestartGame();
 }
 
 void AEnemyCharacter::ClearGame()
 {
-	// TODO: Die 애니메이션 호출
+	SetECharacterState(EEnemyCharacterState::DIE);
 }
 
 void AEnemyCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -95,7 +94,41 @@ void AEnemyCharacter::AttackBySurvivor()
 
 bool AEnemyCharacter::Teleport(FTransform Transform)
 {
+	if (State != EEnemyCharacterState::LAND)
+		return false;
+
+	bool bIsSuccess = SetActorTransform(Transform, false, nullptr, ETeleportType::TeleportPhysics);
+	if (bIsSuccess == false)
+		return false;
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, GetActorLocation());
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
+	GetWorld()->SpawnActor<AActor>(TeleportEffectClass, GetActorTransform(), SpawnParams);
+
+	Cast<AEnemyAIController>(GetController())->FinishedTeleport();
+
 	return true;
+}
+
+void AEnemyCharacter::InstallTrap()
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
+
+	FTransform SpawnTransform = GetActorTransform();
+	SpawnTransform.SetLocation(SpawnTransform.GetLocation() + FVector(38, 0, -48));
+
+	GetWorld()->SpawnActor<ATrap>(TrapClass, SpawnTransform, SpawnParams);
+	SetECharacterState(EEnemyCharacterState::TRAP);
+}
+
+void AEnemyCharacter::SetMaxWalkSpeed(float MaxWalkSpeed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }
 
 bool AEnemyCharacter::IsWalking() const
