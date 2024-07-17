@@ -42,15 +42,7 @@ void AEnemyCharacter::SetECharacterState(EEnemyCharacterState NewState)
 	State = NewState;
 
 	AttackCollision->SetGenerateOverlapEvents(NewState == EEnemyCharacterState::ATTACK);
-
-	if (State == EEnemyCharacterState::LAND)
-	{
-		// ai 컨트롤러 Action false
-	}
-	else
-	{
-		// ai 컨트롤러 Action true
-	}
+	Cast<AEnemyAIController>(GetController())->SetBlackboardActionValue(State != EEnemyCharacterState::LAND);
 }
 
 void AEnemyCharacter::StartGame(int StartStage)

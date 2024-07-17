@@ -13,19 +13,17 @@ class UNDERWORLD_API UEnemyCharacterAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
-private:
-	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite)
 	AEnemyCharacter* Character;
 
-	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite)
 	EEnemyCharacterState CharacterState;
 
-	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsWalking = false;
 
-public:
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
 	UFUNCTION(BlueprintCallable)
 	void FinishedActionAnimation();
 

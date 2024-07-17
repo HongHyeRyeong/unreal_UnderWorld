@@ -13,19 +13,17 @@ class UNDERWORLD_API USurvivorCharacterAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
-private:
-	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite)
 	ASurvivorCharacter* Character;
 
-	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState;
 
-	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite)
 	int LandState;
 
-public:
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
 	UFUNCTION(BlueprintCallable)
 	void AttackToEnemy();
 

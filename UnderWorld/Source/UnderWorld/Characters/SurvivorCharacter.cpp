@@ -78,8 +78,6 @@ ASurvivorCharacter::ASurvivorCharacter()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("ItemInventory"));
 	InventoryComponent->character = this;
-
-	WalkAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), WalkSound);
 }
 
 void ASurvivorCharacter::BeginPlay()
@@ -96,6 +94,8 @@ void ASurvivorCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	WalkAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), WalkSound);
 }
 
 void ASurvivorCharacter::Tick(float DeltaTime)

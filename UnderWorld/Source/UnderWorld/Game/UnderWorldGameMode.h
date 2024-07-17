@@ -81,7 +81,7 @@ public:
 	UFUNCTION()
 	void ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void StartGame(int StartStage);
 
 	UFUNCTION()
