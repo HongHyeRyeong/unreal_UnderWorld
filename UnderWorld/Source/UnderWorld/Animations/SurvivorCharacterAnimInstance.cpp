@@ -15,7 +15,7 @@ void USurvivorCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (IsValid(Character))
 	{
-		CharacterState = Character->state;
+		CharacterState = Character->State;
 
 		LandState = 0;
 		if (Character->IsWalking())

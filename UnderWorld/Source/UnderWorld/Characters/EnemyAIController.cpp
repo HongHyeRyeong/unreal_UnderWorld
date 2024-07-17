@@ -58,6 +58,39 @@ void AEnemyAIController::RestartGame()
 		ChaseAudioComponent->FadeOut(0.5f, 0);
 }
 
+void AEnemyAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+{
+	// TODO: 도달 가능한 위치인지? 체크?
+
+	if (Actor->ActorHasTag("Player") && Stimulus.SensingSucceeded)
+	{
+		GetBlackboardComponent()->SetValueAsBool("HasLineOfSight", true);
+		GetBlackboardComponent()->SetValueAsObject("EnemyActor", Actor);
+
+		GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
+
+		if (ChaseAudioComponent->IsPlaying() == false)
+			ChaseAudioComponent->FadeIn(0.5f);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
+		GetWorld()->GetTimerManager().SetTimer(LineOfSightTimerHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				GetBlackboardComponent()->SetValueAsBool("HasLineOfSight", false);
+				GetBlackboardComponent()->SetValueAsObject("EnemyActor", NULL);
+
+				GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
+			}), 2, false);
+
+		CheckTeleport();
+
+		if (ChaseAudioComponent->IsPlaying())
+			ChaseAudioComponent->FadeOut(0.5f, 0);
+	}
+}
+
 void AEnemyAIController::CheckTeleport()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
@@ -96,35 +129,4 @@ void AEnemyAIController::ComeInEnemy()
 void AEnemyAIController::SetBlackboardActionValue(bool bIsAction)
 {
 	GetBlackboardComponent()->SetValueAsBool("Action", bIsAction);
-}
-
-void AEnemyAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
-{
-	if (Actor->ActorHasTag("Player") && Stimulus.SensingSucceeded)
-	{
-		GetBlackboardComponent()->SetValueAsBool("HasLineOfSight", true);
-		GetBlackboardComponent()->SetValueAsObject("EnemyActor", Actor);
-
-		GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
-		GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
-
-		if (ChaseAudioComponent->IsPlaying() == false)
-			ChaseAudioComponent->FadeIn(0.5f);
-	}
-	else
-	{
-		GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
-		GetWorld()->GetTimerManager().SetTimer(LineOfSightTimerHandle, FTimerDelegate::CreateLambda([&]()
-			{
-				GetBlackboardComponent()->SetValueAsBool("HasLineOfSight", false);
-				GetBlackboardComponent()->SetValueAsObject("EnemyActor", NULL);
-
-				GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
-			}), 2, false);
-
-		CheckTeleport();
-
-		if (ChaseAudioComponent->IsPlaying())
-			ChaseAudioComponent->FadeOut(0.5f, 0);
-	}
 }

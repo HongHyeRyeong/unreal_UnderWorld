@@ -9,15 +9,15 @@
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputActionValue.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "InputActionValue.h"
+#include "Sound/SoundBase.h"
+#include "UnderWorldGameMode.h"
 #include "InventoryComponent.h"
 #include "EnemyCharacter.h"
 #include "Prison.h"
-#include "Sound/SoundBase.h"
-#include "UnderWorldGameMode.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -84,8 +84,12 @@ void ASurvivorCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	installSpeed = 10.0f;
+	Hp = MaxHP;
+
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * SpeedUp;
 	Stamina = MaxStamina;
+
+	InstallSpeed = InstallDefaultSpeed;
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -178,7 +182,7 @@ void ASurvivorCharacter::Tick(float DeltaTime)
 	}
 
 	// »ç¿îµå
-	if (state == ECharacterState::LAND && IsWalking())
+	if (State == ECharacterState::LAND && IsWalking())
 	{
 		if (WalkAudioComponent->IsPlaying() == false)
 			WalkAudioComponent->Play();
@@ -232,7 +236,7 @@ void ASurvivorCharacter::Walk(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (state == ECharacterState::LAND && Controller != nullptr)
+	if (State == ECharacterState::LAND && Controller != nullptr)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -261,7 +265,7 @@ void ASurvivorCharacter::Run(const FInputActionValue& Value)
 
 void ASurvivorCharacter::ItemPick(const FInputActionValue& Value)
 {
-	if (state == ECharacterState::LAND)
+	if (State == ECharacterState::LAND)
 	{
 		if (InventoryComponent->Input())
 		{
@@ -272,7 +276,7 @@ void ASurvivorCharacter::ItemPick(const FInputActionValue& Value)
 
 void ASurvivorCharacter::MachineInstall(const FInputActionValue& Value)
 {
-	if (state == ECharacterState::LAND || state == ECharacterState::MACHINE_INSTALL)
+	if (State == ECharacterState::LAND || State == ECharacterState::MACHINE_INSTALL)
 	{
 		bool Active = Value.Get<bool>();
 		OnInputMachineInstall.Broadcast(Active);
@@ -283,7 +287,7 @@ void ASurvivorCharacter::Avoid(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && state == ECharacterState::LAND)
+	if (active && State == ECharacterState::LAND)
 	{
 		SetECharacterState(ECharacterState::AVOID);
 	}
@@ -293,7 +297,7 @@ void ASurvivorCharacter::Attack(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && AttackTimer <= 0 && state == ECharacterState::LAND)
+	if (active && AttackTimer <= 0 && State == ECharacterState::LAND)
 	{
 		SetECharacterState(ECharacterState::ATTACK);
 		AttackTimer = AttackTime;
@@ -304,7 +308,7 @@ void ASurvivorCharacter::CounterAttack(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && CounterAttackTimer <= 0 && state == ECharacterState::LAND)
+	if (active && CounterAttackTimer <= 0 && State == ECharacterState::LAND)
 	{
 		SetECharacterState(ECharacterState::COUNTER_ATTACK);
 		CounterAttackTimer = CounterAttackTime;
@@ -315,30 +319,14 @@ void ASurvivorCharacter::Prison(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
-	if (active && beInPrison && state == ECharacterState::LAND)
+	if (active && beInPrison && State == ECharacterState::LAND)
 	{
 		OnInputPrison.Broadcast();
 
 		beInPrison = false;
-		hp = 100;
+		Hp = 100;
 		ItemRemove(EItemType::KEY, 1);
 	}
-}
-
-void ASurvivorCharacter::SetECharacterState(ECharacterState value)
-{
-	if (state == ECharacterState::MACHINE_INSTALL)
-		OnInputMachineInstall.Broadcast(false);
-
-	AttackCollision->SetGenerateOverlapEvents(value == ECharacterState::ATTACK);
-
-	state = value;
-	OnChangeState.Broadcast(state);
-}
-
-void ASurvivorCharacter::AnimEnd()
-{
-	SetECharacterState(ECharacterState::LAND);
 }
 
 void ASurvivorCharacter::ItemPutOn(EItemType Type, int Level)
@@ -357,11 +345,11 @@ void ASurvivorCharacter::ItemPutOn(EItemType Type, int Level)
 		BagMesh->SetMaterial(0, ItemMaterials[Level - 1]);
 
 		if (Level == 1)
-			installSpeed = installDefaultSpeed * 1.1f;
+			InstallSpeed = InstallDefaultSpeed * 1.1f;
 		else if (Level == 2)
-			installSpeed = installDefaultSpeed * 1.3f;
+			InstallSpeed = InstallDefaultSpeed * 1.3f;
 		else
-			installSpeed = installDefaultSpeed;
+			InstallSpeed = InstallDefaultSpeed;
 	}
 }
 
@@ -409,12 +397,12 @@ void ASurvivorCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* Over
 
 void ASurvivorCharacter::AttackByEnemy(bool front)
 {
-	if (state == ECharacterState::AVOID || state == ECharacterState::DOWN || state == ECharacterState::DOWN_FRONT || state == ECharacterState::DIE)
+	if (State == ECharacterState::AVOID || State == ECharacterState::DOWN || State == ECharacterState::DOWN_FRONT || State == ECharacterState::DIE)
 		return;
 
-	hp -= 50.0f;
+	Hp -= 50.0f;
 
-	if (hp <= 0)
+	if (Hp <= 0)
 	{
 		if (IsHaveKey()) 
 		{
@@ -445,6 +433,17 @@ void ASurvivorCharacter::AttackByTrap()
 {
 	SetECharacterState(ECharacterState::TRAP);
 	GetCharacterMovement()->StopMovementImmediately();
+}
+
+void ASurvivorCharacter::SetECharacterState(ECharacterState value)
+{
+	if (State == ECharacterState::MACHINE_INSTALL)
+		OnInputMachineInstall.Broadcast(false);
+
+	AttackCollision->SetGenerateOverlapEvents(value == ECharacterState::ATTACK);
+
+	State = value;
+	OnChangeState.Broadcast(State);
 }
 
 bool ASurvivorCharacter::IsWalking() const

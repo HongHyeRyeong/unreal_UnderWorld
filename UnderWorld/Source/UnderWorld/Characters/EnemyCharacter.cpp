@@ -3,11 +3,11 @@
 #include "EnemyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "EnemyAIController.h"
 #include "SurvivorCharacter.h"
 #include "Trap.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Kismet/GameplayStatics.h"
 
 AEnemyCharacter::AEnemyCharacter()
 {
@@ -34,22 +34,15 @@ void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	EnemyAIController = Cast<AEnemyAIController>(GetController());
 	SurvivorCharacter = Cast<ASurvivorCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-}
-
-void AEnemyCharacter::SetECharacterState(EEnemyCharacterState NewState)
-{
-	State = NewState;
-
-	AttackCollision->SetGenerateOverlapEvents(NewState == EEnemyCharacterState::ATTACK);
-	Cast<AEnemyAIController>(GetController())->SetBlackboardActionValue(State != EEnemyCharacterState::LAND);
 }
 
 void AEnemyCharacter::StartGame(int StartStage)
 {
 	Stage = StartStage;
 
-	Cast<AEnemyAIController>(GetController())->StartGame(StartStage);
+	EnemyAIController->StartGame(StartStage);
 
 	if (Stage == 3)
 		SetMaxWalkSpeed(150);
@@ -57,7 +50,7 @@ void AEnemyCharacter::StartGame(int StartStage)
 
 void AEnemyCharacter::RestartGame()
 {
-	Cast<AEnemyAIController>(GetController())->RestartGame();
+	EnemyAIController->RestartGame();
 }
 
 void AEnemyCharacter::ClearGame()
@@ -69,7 +62,7 @@ void AEnemyCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* Overlap
 {
 	AttackCollision->SetGenerateOverlapEvents(false);
 
-	if (SurvivorCharacter->state == ECharacterState::COUNTER_ATTACK)
+	if (SurvivorCharacter->State == ECharacterState::COUNTER_ATTACK)
 	{
 		SurvivorCharacter->OnCounterAttackToEnemy.AddDynamic(this, &AEnemyCharacter::AttackBySurvivor);
 	}
@@ -102,7 +95,7 @@ bool AEnemyCharacter::Teleport(FTransform Transform)
 	SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 	GetWorld()->SpawnActor<AActor>(TeleportEffectClass, GetActorTransform(), SpawnParams);
 
-	Cast<AEnemyAIController>(GetController())->FinishedTeleport();
+	EnemyAIController->FinishedTeleport();
 
 	return true;
 }
@@ -118,6 +111,14 @@ void AEnemyCharacter::InstallTrap()
 
 	GetWorld()->SpawnActor<ATrap>(TrapClass, SpawnTransform, SpawnParams);
 	SetECharacterState(EEnemyCharacterState::TRAP);
+}
+
+void AEnemyCharacter::SetECharacterState(EEnemyCharacterState NewState)
+{
+	State = NewState;
+
+	AttackCollision->SetGenerateOverlapEvents(NewState == EEnemyCharacterState::ATTACK);
+	EnemyAIController->SetBlackboardActionValue(State != EEnemyCharacterState::LAND);
 }
 
 void AEnemyCharacter::SetMaxWalkSpeed(float MaxWalkSpeed)

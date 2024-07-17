@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
-#include "Item.h"
 #include "Components/SphereComponent.h"
 #include "Components/AudioComponent.h"
+#include "Item.h"
 #include "SurvivorCharacter.generated.h"
 
 class USpringArmComponent;
@@ -35,8 +35,8 @@ enum class ECharacterState : uint8
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FXFDele);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleBool, bool, active);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleState, ECharacterState, state);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleBool, bool, bIsActive);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleState, ECharacterState, State);
 
 UCLASS(config=Game)
 class ASurvivorCharacter : public ACharacter
@@ -45,6 +45,9 @@ class ASurvivorCharacter : public ACharacter
 
 public:
 	ASurvivorCharacter();
+
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 protected:
 	virtual void BeginPlay();
@@ -61,11 +64,6 @@ protected:
 	void CounterAttack(const FInputActionValue& Value);
 	void Prison(const FInputActionValue& Value);
 
-public:
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
@@ -102,16 +100,19 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PrisonAction;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	UStaticMeshComponent* HatMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	UStaticMeshComponent* BagMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere)
+	TArray<UMaterialInterface*> ItemMaterials;
+
+	UPROPERTY()
 	USphereComponent* AttackCollision;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	USphereComponent* SpeedUpCollision;
 
 	UPROPERTY(EditAnywhere)
@@ -120,58 +121,62 @@ private:
 	UPROPERTY()
 	UAudioComponent* WalkAudioComponent;
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UInventoryComponent* InventoryComponent;
+	UPROPERTY()
+	float Hp = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UMaterialInterface*> ItemMaterials;
+	UPROPERTY()
+	int MaxHP = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ECharacterState state = ECharacterState::LAND;
+	UPROPERTY()
+	float Stamina = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float hp = MaxHP;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float SpeedUp = 1.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float installSpeed = 10.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Stamina = MaxStamina;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	float MaxStamina = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
+	int WalkSpeed = 500;
+
+	UPROPERTY()
+	int RunSpeed = 700;
+
+	UPROPERTY()
+	float SpeedUp = 1.0f;
+
+	UPROPERTY()
+	float InstallDefaultSpeed = 10.0f;
+
+	UPROPERTY()
 	float AttackTimer = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
+	float AttackTime = 3;
+
+	UPROPERTY()
 	float CounterAttackTimer = 0;
 
-	const int MaxHP = 100;
-	const int WalkSpeed = 500;
-	const int RunSpeed = 700;
-	const float installDefaultSpeed = 10.0f;
-	float AttackTime = 3;
+	UPROPERTY()
 	float CounterAttackTime = 5;
 
-	AItem* FocusItem;
+	UPROPERTY()
 	bool beInPrison = 0;
 
+	UPROPERTY()
+	AItem* FocusItem;
+
 public:
-	UFUNCTION(BlueprintCallable)
-	void SetECharacterState(ECharacterState value);
+	UPROPERTY()
+	ECharacterState State = ECharacterState::LAND;
 
-	UFUNCTION(BlueprintCallable)
-	void AnimEnd();
+	UPROPERTY()
+	float InstallSpeed = 10.0f;
 
-	UFUNCTION(BlueprintCallable)
+	UPROPERTY()
+	UInventoryComponent* InventoryComponent;
+
+	UFUNCTION()
 	void ItemPutOn(EItemType type, int level);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION()
 	void ItemRemove(EItemType type, int level);
 
 	UFUNCTION()
@@ -183,16 +188,19 @@ public:
 	UFUNCTION()
 	void OnBeginOverlapAttackCollision(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION()
 	void AttackByEnemy(bool front);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION()
 	void AttackByTrap();
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION()
+	void SetECharacterState(ECharacterState value);
+
+	UFUNCTION()
 	bool IsWalking() const;
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION()
 	bool IsRunning() const;
 
 	UFUNCTION(BlueprintPure)

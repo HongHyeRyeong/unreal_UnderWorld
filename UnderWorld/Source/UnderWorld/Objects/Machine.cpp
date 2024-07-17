@@ -72,7 +72,7 @@ void AMachine::Tick(float DeltaTime)
             InstallAudioComponent->FadeIn(0.5f);
         }
 
-        InstallGauge += Character->installSpeed * DeltaTime;
+        InstallGauge += Character->InstallSpeed * DeltaTime;
         MachineWhellRoot->AddLocalRotation(FRotator(0, 0, 2));
 
         if (InstallGauge >= 100)
@@ -88,7 +88,7 @@ void AMachine::Tick(float DeltaTime)
         {
             bIsInstall = false;
 
-            if (Character->state == ECharacterState::MACHINE_INSTALL)
+            if (Character->State == ECharacterState::MACHINE_INSTALL)
                 Character->SetECharacterState(ECharacterState::LAND);
 
             InstallAudioComponent->FadeOut(0.3f, 0);

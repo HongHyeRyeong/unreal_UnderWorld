@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/SphereComponent.h"
+#include "EnemyAIController.h"
 #include "SurvivorCharacter.h"
 #include "Trap.h"
 #include "EnemyCharacter.generated.h"
@@ -40,21 +41,21 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> TeleportEffectClass;
 
-public:	
-	UPROPERTY(BlueprintReadWrite)
-	EEnemyCharacterState State = EEnemyCharacterState::LAND;
+	UPROPERTY()
+	USphereComponent* AttackCollision;
 
 	UPROPERTY()
 	int Stage = 0;
 
 	UPROPERTY()
-	USphereComponent* AttackCollision;
+	AEnemyAIController* EnemyAIController;
 
 	UPROPERTY()
 	ASurvivorCharacter* SurvivorCharacter;
 
-	UFUNCTION(BlueprintCallable)
-	void SetECharacterState(EEnemyCharacterState NewState);
+public:
+	UPROPERTY()
+	EEnemyCharacterState State = EEnemyCharacterState::LAND;
 
 	UFUNCTION()
 	void StartGame(int StartStage);
@@ -76,6 +77,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void InstallTrap();
+
+	UFUNCTION(BlueprintCallable)
+	void SetECharacterState(EEnemyCharacterState NewState);
 
 	UFUNCTION(BlueprintCallable)
 	void SetMaxWalkSpeed(float MaxWalkSpeed);

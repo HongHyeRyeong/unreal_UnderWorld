@@ -45,6 +45,9 @@ public:
 	void RestartGame();
 
 	UFUNCTION()
+	void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+
+	UFUNCTION()
 	void CheckTeleport();
 
 	UFUNCTION()
@@ -55,7 +58,4 @@ public:
 
 	UFUNCTION()
 	void SetBlackboardActionValue(bool bIsAction);
-
-	UFUNCTION()
-	void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 };
