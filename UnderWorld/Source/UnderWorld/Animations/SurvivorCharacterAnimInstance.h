@@ -4,14 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "EnemyCharacter.h"
-#include "EnemyCharacterAnimInstance.generated.h"
+#include "SurvivorCharacter.h"
+#include "SurvivorCharacterAnimInstance.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class UNDERWORLD_API UEnemyCharacterAnimInstance : public UAnimInstance
+class UNDERWORLD_API USurvivorCharacterAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
@@ -20,18 +17,18 @@ public:
 
 private:
 	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
-	AEnemyCharacter* Character;
+	ASurvivorCharacter* Character;
 
 	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
-	EEnemyCharacterState CharacterState;
+	ECharacterState CharacterState;
 
 	UPROPERTY(BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
-	bool bIsWalking = false;
+	int LandState;
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void FinishedActionAnimation();
+	void AttackToEnemy();
 
 	UFUNCTION(BlueprintCallable)
-	void FinishedAttackAnimation();
+	void FinishedActionAnimation();
 };

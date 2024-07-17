@@ -1,5 +1,7 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "Trap.h"
-#include "UnderWorldCharacter.h"
+#include "SurvivorCharacter.h"
 #include "EnemyCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -17,7 +19,7 @@ ATrap::ATrap()
 
 void ATrap::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
     if (OtherCharacter)
     {
         OtherCharacter->AttackByTrap();

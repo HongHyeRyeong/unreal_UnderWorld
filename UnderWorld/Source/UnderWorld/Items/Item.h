@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
-#include "ItemBase.generated.h"
+#include "Item.generated.h"
 
 UENUM(BlueprintType)
 enum class EItemType : uint8
@@ -18,12 +18,12 @@ enum class EItemType : uint8
 };
 
 UCLASS()
-class UNDERWORLD_API AItemBase : public AActor
+class UNDERWORLD_API AItem : public AActor
 {
 	GENERATED_BODY()
 	
 public:
-	AItemBase();
+	AItem();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EItemType Type = EItemType::HAT;

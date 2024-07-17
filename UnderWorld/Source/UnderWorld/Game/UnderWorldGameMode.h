@@ -43,7 +43,7 @@ protected:
 	USoundBase* ClearSound;
 
 	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<AItemBase>> ItemClass;
+	TArray<TSubclassOf<AItem>> ItemClass;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ACharacter> EnemyCharacterClass;
@@ -58,7 +58,7 @@ public:
 	int Stage = 0;
 
 	UPROPERTY()
-	AUnderWorldCharacter* SurvivorCharacter;
+	ASurvivorCharacter* SurvivorCharacter;
 
 	UPROPERTY()
 	AEnemyCharacter* EnemyCharacter;

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "UnderWorldCharacter.h"
+#include "SurvivorCharacter.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/AudioComponent.h"
 #include "Machine.generated.h"
@@ -57,7 +57,7 @@ public:
 	UAudioComponent* InstallAudioComponent;
 
 	UPROPERTY()
-	AUnderWorldCharacter* Character;
+	ASurvivorCharacter* Character;
 
 	UPROPERTY()
 	bool bIsOverlap = false;

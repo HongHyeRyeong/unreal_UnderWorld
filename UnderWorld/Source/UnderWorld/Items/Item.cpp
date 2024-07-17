@@ -1,15 +1,17 @@
-#include "ItemBase.h"
-#include "UnderWorldCharacter.h"
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "Item.h"
+#include "SurvivorCharacter.h"
 #include "InventoryComponent.h"
 
-AItemBase::AItemBase()
+AItem::AItem()
 {
     CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
     RootComponent = CollisionBox;
     CollisionBox->SetBoxExtent(FVector(15, 15, 15));
     CollisionBox->SetCollisionProfileName(TEXT("OverlapOnlySurvivor"));
-    CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnBeginOverlap);
-    CollisionBox->OnComponentEndOverlap.AddDynamic(this, &AItemBase::OnEndOverlap);
+    CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnBeginOverlap);
+    CollisionBox->OnComponentEndOverlap.AddDynamic(this, &AItem::OnEndOverlap);
 
     StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
     StaticMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -17,29 +19,29 @@ AItemBase::AItemBase()
     StaticMesh->bReceivesDecals = false;
 }
 
-void AItemBase::SetLevel(int InitLevel)
+void AItem::SetLevel(int InitLevel)
 {
     Level = InitLevel;
     StaticMesh->SetMaterial(0, Materials[InitLevel]);
 }
 
-void AItemBase::SetOutline(bool Active)
+void AItem::SetOutline(bool Active)
 {
     StaticMesh->SetOverlayMaterial(Active ? Materials[0] : NULL);
 }
 
-void AItemBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
     if (OtherCharacter)
     {
         OtherCharacter->InventoryComponent->BeginOverlap(this);
     }
 }
 
-void AItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AItem::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
     if (OtherCharacter)
     {
         OtherCharacter->InventoryComponent->EndOverlap(this);

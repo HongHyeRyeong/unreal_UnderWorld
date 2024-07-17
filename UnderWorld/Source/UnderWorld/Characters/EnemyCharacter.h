@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/SphereComponent.h"
-#include "UnderWorldCharacter.h"
+#include "SurvivorCharacter.h"
 #include "Trap.h"
 #include "EnemyCharacter.generated.h"
 
@@ -51,7 +51,7 @@ public:
 	USphereComponent* AttackCollision;
 
 	UPROPERTY()
-	AUnderWorldCharacter* SurvivorCharacter;
+	ASurvivorCharacter* SurvivorCharacter;
 
 	UFUNCTION(BlueprintCallable)
 	void SetECharacterState(EEnemyCharacterState NewState);

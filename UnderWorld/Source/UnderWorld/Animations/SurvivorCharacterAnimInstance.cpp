@@ -1,17 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "SurvivorCharacterAnimInstance.h"
+#include "SurvivorCharacter.h"
 
-#include "CharacterAnimInstance.h"
-#include "UnderWorldCharacter.h"
-
-void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void USurvivorCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
 	if (IsValid(Character) == false)
 	{
 		auto Pawn = TryGetPawnOwner();
-		Character = Cast<AUnderWorldCharacter>(Pawn);
+		Character = Cast<ASurvivorCharacter>(Pawn);
 	}
 
 	if (IsValid(Character))
@@ -31,12 +30,12 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
-void UCharacterAnimInstance::AttackToEnemy()
+void USurvivorCharacterAnimInstance::AttackToEnemy()
 {
 	Character->OnCounterAttackToEnemy.Broadcast();
 }
 
-void UCharacterAnimInstance::FinishedActionAnimation()
+void USurvivorCharacterAnimInstance::FinishedActionAnimation()
 {
 	Character->SetECharacterState(ECharacterState::LAND);
 }

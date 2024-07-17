@@ -1,5 +1,7 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "InventoryComponent.h"
-#include "ItemBase.h"
+#include "Item.h"
 #include "Logging/LogMacros.h"
 
 UInventoryComponent::UInventoryComponent()
@@ -27,12 +29,12 @@ UInventoryComponent::UInventoryComponent()
 	}
 }
 
-void UInventoryComponent::BeginOverlap(AItemBase* item)
+void UInventoryComponent::BeginOverlap(AItem* item)
 {
 	PickItemArray.Add(item);
 }
 
-void UInventoryComponent::EndOverlap(AItemBase* item)
+void UInventoryComponent::EndOverlap(AItem* item)
 {
 	PickItemArray.Remove(item);
 }
@@ -43,7 +45,7 @@ bool UInventoryComponent::Input()
 
 	if (PickItemArray.Num() > 0)
 	{
-		AItemBase* OverlapItem = PickItemArray[0];
+		AItem* OverlapItem = PickItemArray[0];
 
 		switch (OverlapItem->Type)
 		{

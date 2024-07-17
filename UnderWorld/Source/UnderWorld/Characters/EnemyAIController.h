@@ -7,9 +7,6 @@
 #include "Perception/AISenseConfig_Sight.h"
 #include "EnemyAIController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class UNDERWORLD_API AEnemyAIController : public AAIController
 {

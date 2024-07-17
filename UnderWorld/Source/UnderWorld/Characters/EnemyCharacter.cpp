@@ -1,8 +1,10 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "EnemyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnemyAIController.h"
-#include "UnderWorldCharacter.h"
+#include "SurvivorCharacter.h"
 #include "Trap.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -32,7 +34,7 @@ void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SurvivorCharacter = Cast<AUnderWorldCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	SurvivorCharacter = Cast<ASurvivorCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 void AEnemyCharacter::SetECharacterState(EEnemyCharacterState NewState)

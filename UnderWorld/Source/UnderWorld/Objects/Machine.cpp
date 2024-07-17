@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Machine.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SpotLightComponent.h"
@@ -108,7 +107,7 @@ void AMachine::Tick(float DeltaTime)
 
 void AMachine::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
     if (OtherCharacter)
     {
         if (Character == NULL) 
@@ -123,7 +122,7 @@ void AMachine::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
 
 void AMachine::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
     if (OtherCharacter)
     {
         bIsOverlap = false;

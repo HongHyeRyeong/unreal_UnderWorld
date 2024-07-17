@@ -1,5 +1,7 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "Prison.h"
-#include "UnderWorldCharacter.h"
+#include "SurvivorCharacter.h"
 #include "Components/CapsuleComponent.h"
 
 APrison::APrison()
@@ -17,7 +19,7 @@ APrison::APrison()
 
 void APrison::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
     if (OtherCharacter)
     {
         OtherCharacter->OnInputPrison.AddDynamic(this, &APrison::DoorOpen);
@@ -26,7 +28,7 @@ void APrison::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 
 void APrison::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    AUnderWorldCharacter* OtherCharacter = Cast<AUnderWorldCharacter>(OtherActor);
+    ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
     if (OtherCharacter)
     {
         DoorClose();

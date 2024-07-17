@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "ItemBase.h"
-#include "UnderWorldCharacter.h"
+#include "Item.h"
+#include "SurvivorCharacter.h"
 #include "InventoryComponent.generated.h"
 
 struct Item {
@@ -24,18 +24,18 @@ public:
 	UInventoryComponent();
 
 public:
-	void BeginOverlap(AItemBase* item);
-	void EndOverlap(AItemBase* item);
+	void BeginOverlap(AItem* item);
+	void EndOverlap(AItem* item);
 	bool Input();
 	void PutOn(EItemType type, int level);
 	void Remove(EItemType type, int level);
 	int GetHaveItemCount(EItemType type, int level);
 	int GetPutOnItem(EItemType type);
 
-	AUnderWorldCharacter* character;
+	ASurvivorCharacter* character;
 
 private:
-	TArray<AItemBase*> PickItemArray;
+	TArray<AItem*> PickItemArray;
 	TMap<EItemType, TArray<Item>> HaveItemMap;
 	TMap<EItemType, int> PutItemMap;
 

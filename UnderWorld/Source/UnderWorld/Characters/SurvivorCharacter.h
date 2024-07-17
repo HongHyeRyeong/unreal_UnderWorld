@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
-#include "ItemBase.h"
+#include "Item.h"
 #include "Components/SphereComponent.h"
 #include "Components/AudioComponent.h"
-#include "UnderWorldCharacter.generated.h"
+#include "SurvivorCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -39,12 +39,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleBool, bool, active);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXFDeleState, ECharacterState, state);
 
 UCLASS(config=Game)
-class AUnderWorldCharacter : public ACharacter
+class ASurvivorCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	AUnderWorldCharacter();
+	ASurvivorCharacter();
 
 protected:
 	virtual void BeginPlay();
@@ -158,7 +158,7 @@ public:
 	float AttackTime = 3;
 	float CounterAttackTime = 5;
 
-	AItemBase* FocusItem;
+	AItem* FocusItem;
 	bool beInPrison = 0;
 
 public:

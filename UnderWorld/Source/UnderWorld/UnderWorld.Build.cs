@@ -8,6 +8,28 @@ public class UnderWorld : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "AIModule", "NavigationSystem", "UMG" });
+        PublicIncludePaths.AddRange(
+            new string[] {
+                "UnderWorld",
+                "UnderWorld/Animations",
+                "UnderWorld/Characters",
+                "UnderWorld/Game",
+                "UnderWorld/Items",
+                "UnderWorld/Objects",
+            }
+        );
+
+        PublicDependencyModuleNames.AddRange(
+			new string[] {
+				"Core", 
+				"CoreUObject",
+				"Engine", 
+				"InputCore", 
+				"EnhancedInput",
+				"AIModule", 
+				"NavigationSystem", 
+				"UMG" 
+			}
+		);
 	}
 }

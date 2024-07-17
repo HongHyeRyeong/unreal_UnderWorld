@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UnderWorldGameMode.h"
-#include "UnderWorldCharacter.h"
+#include "SurvivorCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Blueprint/UserWidget.h"
@@ -16,7 +16,7 @@ void AUnderWorldGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SurvivorCharacter = Cast<AUnderWorldCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	SurvivorCharacter = Cast<ASurvivorCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	TArray<AActor*> FoundActors;
 
@@ -147,25 +147,25 @@ void AUnderWorldGameMode::SpawnItem()
 		FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
-				AItemBase* Item;
+				AItem* Item;
 				int RandomItemType = FMath::RandRange(0, 5);
 				int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
 
 				if (RandomItemType == (int)EItemType::HAT)
 				{
 					int RandomItemLevel = FMath::RandRange(1, HatMaxLevel);
-					Item = GetWorld()->SpawnActor<AItemBase>(ItemClass[(int)EItemType::HAT], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+					Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::HAT], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
 					Item->SetLevel(RandomItemLevel);
 				}
 				else if (RandomItemType == (int)EItemType::BAG)
 				{
 					int RandomItemLevel = FMath::RandRange(1, BagMaxLevel);
-					Item = GetWorld()->SpawnActor<AItemBase>(ItemClass[(int)EItemType::BAG], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+					Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::BAG], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
 					Item->SetLevel(RandomItemLevel);
 				}
 				else
 				{
-					Item = GetWorld()->SpawnActor<AItemBase>(ItemClass[(int)EItemType::GADGET], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+					Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::GADGET], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
 				}
 
 				Item->SetLifeSpan(7);
@@ -177,7 +177,7 @@ void AUnderWorldGameMode::SpawnItem()
 
 		for (int i = 0; i < HatMaxLevel; ++i) {
 			int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
-			AItemBase* Item = GetWorld()->SpawnActor<AItemBase>(ItemClass[(int)EItemType::HAT], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::HAT], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
 			Item->SetLevel(i + 1);
 
 			FoundActors.Remove(FoundActors[SpawnIndex]);
@@ -185,7 +185,7 @@ void AUnderWorldGameMode::SpawnItem()
 
 		for (int i = 0; i < BagMaxLevel; ++i) {
 			int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
-			AItemBase* Item = GetWorld()->SpawnActor<AItemBase>(ItemClass[(int)EItemType::BAG], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::BAG], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
 			Item->SetLevel(i + 1);
 
 			FoundActors.Remove(FoundActors[SpawnIndex]);
@@ -193,7 +193,7 @@ void AUnderWorldGameMode::SpawnItem()
 
 		for (int i = 0; i < 3; ++i) {
 			int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
-			AItemBase* Item = GetWorld()->SpawnActor<AItemBase>(ItemClass[(int)EItemType::KEY], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::KEY], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
 
 			FoundActors.Remove(FoundActors[SpawnIndex]);
 		}
@@ -202,7 +202,7 @@ void AUnderWorldGameMode::SpawnItem()
 
 		for (int i = 0; i < 10; ++i) {
 			int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
-			AItemBase* Item = GetWorld()->SpawnActor<AItemBase>(ItemClass[(int)EItemType::GADGET], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::GADGET], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
 
 			FoundActors.Remove(FoundActors[SpawnIndex]);
 		}

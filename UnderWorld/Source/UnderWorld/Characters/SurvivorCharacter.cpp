@@ -1,6 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "UnderWorldCharacter.h"
+#include "SurvivorCharacter.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -21,10 +21,7 @@
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
-//////////////////////////////////////////////////////////////////////////
-// AUnderWorldCharacter
-
-AUnderWorldCharacter::AUnderWorldCharacter()
+ASurvivorCharacter::ASurvivorCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(15.f, 30.0f);
 	GetCapsuleComponent()->bReceivesDecals = false;
@@ -69,15 +66,15 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 	AttackCollision->SetupAttachment(GetMesh(), FName("Bip001-L-Foot"));
 	AttackCollision->SetSphereRadius(12);
 	AttackCollision->SetCollisionProfileName(TEXT("OverlapOnlyEnemy"));
-	AttackCollision->OnComponentBeginOverlap.AddDynamic(this, &AUnderWorldCharacter::OnBeginOverlapAttackCollision);
+	AttackCollision->OnComponentBeginOverlap.AddDynamic(this, &ASurvivorCharacter::OnBeginOverlapAttackCollision);
 	AttackCollision->SetGenerateOverlapEvents(false);
 
 	SpeedUpCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SpeedUpCollision"));
 	SpeedUpCollision->SetupAttachment(RootComponent);
 	SpeedUpCollision->SetSphereRadius(300);
 	SpeedUpCollision->SetCollisionProfileName(TEXT("OverlapOnlyEnemy"));
-	SpeedUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AUnderWorldCharacter::OnBeginOverlapSpeedUpCollision);
-	SpeedUpCollision->OnComponentEndOverlap.AddDynamic(this, &AUnderWorldCharacter::OnEndOverlapSpeedUpCollision);
+	SpeedUpCollision->OnComponentBeginOverlap.AddDynamic(this, &ASurvivorCharacter::OnBeginOverlapSpeedUpCollision);
+	SpeedUpCollision->OnComponentEndOverlap.AddDynamic(this, &ASurvivorCharacter::OnEndOverlapSpeedUpCollision);
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("ItemInventory"));
 	InventoryComponent->character = this;
@@ -85,7 +82,7 @@ AUnderWorldCharacter::AUnderWorldCharacter()
 	WalkAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), WalkSound);
 }
 
-void AUnderWorldCharacter::BeginPlay()
+void ASurvivorCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -101,7 +98,7 @@ void AUnderWorldCharacter::BeginPlay()
 	}
 }
 
-void AUnderWorldCharacter::Tick(float DeltaTime)
+void ASurvivorCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -175,7 +172,7 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 
 	if (IsHit)
 	{
-		FocusItem = Cast<AItemBase>(OutHit.GetActor());
+		FocusItem = Cast<AItem>(OutHit.GetActor());
 		if (IsValid(FocusItem))
 			FocusItem->SetOutline(true);
 	}
@@ -197,22 +194,22 @@ void AUnderWorldCharacter::Tick(float DeltaTime)
 	}
 }
 
-void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASurvivorCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUnderWorldCharacter::Look);
-		EnhancedInputComponent->BindAction(WalkAction, ETriggerEvent::Triggered, this, &AUnderWorldCharacter::Walk);
-		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Run);
-		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AUnderWorldCharacter::Run);
-		EnhancedInputComponent->BindAction(ItemPickAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::ItemPick);
-		EnhancedInputComponent->BindAction(MachineInstallAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::MachineInstall);
-		EnhancedInputComponent->BindAction(MachineInstallAction, ETriggerEvent::Completed, this, &AUnderWorldCharacter::MachineInstall);
-		EnhancedInputComponent->BindAction(AvoidAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Avoid);
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Attack);
-		EnhancedInputComponent->BindAction(CounterAttackAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::CounterAttack);
-		EnhancedInputComponent->BindAction(PrisonAction, ETriggerEvent::Started, this, &AUnderWorldCharacter::Prison);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASurvivorCharacter::Look);
+		EnhancedInputComponent->BindAction(WalkAction, ETriggerEvent::Triggered, this, &ASurvivorCharacter::Walk);
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ASurvivorCharacter::Run);
+		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ASurvivorCharacter::Run);
+		EnhancedInputComponent->BindAction(ItemPickAction, ETriggerEvent::Started, this, &ASurvivorCharacter::ItemPick);
+		EnhancedInputComponent->BindAction(MachineInstallAction, ETriggerEvent::Started, this, &ASurvivorCharacter::MachineInstall);
+		EnhancedInputComponent->BindAction(MachineInstallAction, ETriggerEvent::Completed, this, &ASurvivorCharacter::MachineInstall);
+		EnhancedInputComponent->BindAction(AvoidAction, ETriggerEvent::Started, this, &ASurvivorCharacter::Avoid);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ASurvivorCharacter::Attack);
+		EnhancedInputComponent->BindAction(CounterAttackAction, ETriggerEvent::Started, this, &ASurvivorCharacter::CounterAttack);
+		EnhancedInputComponent->BindAction(PrisonAction, ETriggerEvent::Started, this, &ASurvivorCharacter::Prison);
 	}
 	else
 	{
@@ -220,7 +217,7 @@ void AUnderWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	}
 }
 
-void AUnderWorldCharacter::Look(const FInputActionValue& Value)
+void ASurvivorCharacter::Look(const FInputActionValue& Value)
 {
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
@@ -231,7 +228,7 @@ void AUnderWorldCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::Walk(const FInputActionValue& Value)
+void ASurvivorCharacter::Walk(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -247,7 +244,7 @@ void AUnderWorldCharacter::Walk(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::Run(const FInputActionValue& Value)
+void ASurvivorCharacter::Run(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
@@ -262,7 +259,7 @@ void AUnderWorldCharacter::Run(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
+void ASurvivorCharacter::ItemPick(const FInputActionValue& Value)
 {
 	if (state == ECharacterState::LAND)
 	{
@@ -273,7 +270,7 @@ void AUnderWorldCharacter::ItemPick(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
+void ASurvivorCharacter::MachineInstall(const FInputActionValue& Value)
 {
 	if (state == ECharacterState::LAND || state == ECharacterState::MACHINE_INSTALL)
 	{
@@ -282,7 +279,7 @@ void AUnderWorldCharacter::MachineInstall(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::Avoid(const FInputActionValue& Value)
+void ASurvivorCharacter::Avoid(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
@@ -292,7 +289,7 @@ void AUnderWorldCharacter::Avoid(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::Attack(const FInputActionValue& Value)
+void ASurvivorCharacter::Attack(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
@@ -303,7 +300,7 @@ void AUnderWorldCharacter::Attack(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::CounterAttack(const FInputActionValue& Value)
+void ASurvivorCharacter::CounterAttack(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
@@ -314,7 +311,7 @@ void AUnderWorldCharacter::CounterAttack(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
+void ASurvivorCharacter::Prison(const FInputActionValue& Value)
 {
 	bool active = Value.Get<bool>();
 
@@ -328,7 +325,7 @@ void AUnderWorldCharacter::Prison(const FInputActionValue& Value)
 	}
 }
 
-void AUnderWorldCharacter::SetECharacterState(ECharacterState value)
+void ASurvivorCharacter::SetECharacterState(ECharacterState value)
 {
 	if (state == ECharacterState::MACHINE_INSTALL)
 		OnInputMachineInstall.Broadcast(false);
@@ -339,12 +336,12 @@ void AUnderWorldCharacter::SetECharacterState(ECharacterState value)
 	OnChangeState.Broadcast(state);
 }
 
-void AUnderWorldCharacter::AnimEnd()
+void ASurvivorCharacter::AnimEnd()
 {
 	SetECharacterState(ECharacterState::LAND);
 }
 
-void AUnderWorldCharacter::ItemPutOn(EItemType Type, int Level)
+void ASurvivorCharacter::ItemPutOn(EItemType Type, int Level)
 {
 	if (GetItemCount(Type, Level) == 0)
 		return;
@@ -368,12 +365,12 @@ void AUnderWorldCharacter::ItemPutOn(EItemType Type, int Level)
 	}
 }
 
-void AUnderWorldCharacter::ItemRemove(EItemType Type, int Level)
+void ASurvivorCharacter::ItemRemove(EItemType Type, int Level)
 {
 	InventoryComponent->Remove(Type, Level);
 }
 
-void AUnderWorldCharacter::OnBeginOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASurvivorCharacter::OnBeginOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	bool bSpeedUp = false;
 	int HatLevel = InventoryComponent->GetPutOnItem(EItemType::HAT);
@@ -396,12 +393,12 @@ void AUnderWorldCharacter::OnBeginOverlapSpeedUpCollision(UPrimitiveComponent* O
 	SpeedUp = bSpeedUp ? 1.1f : 1.0f;
 }
 
-void AUnderWorldCharacter::OnEndOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ASurvivorCharacter::OnEndOverlapSpeedUpCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	SpeedUp = 1.0f;
 }
 
-void AUnderWorldCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASurvivorCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AEnemyCharacter* Enemy = Cast<AEnemyCharacter>(OtherActor);
 	if (Enemy)
@@ -410,7 +407,7 @@ void AUnderWorldCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* Ov
 	}
 }
 
-void AUnderWorldCharacter::AttackByEnemy(bool front)
+void ASurvivorCharacter::AttackByEnemy(bool front)
 {
 	if (state == ECharacterState::AVOID || state == ECharacterState::DOWN || state == ECharacterState::DOWN_FRONT || state == ECharacterState::DIE)
 		return;
@@ -444,33 +441,33 @@ void AUnderWorldCharacter::AttackByEnemy(bool front)
 	}
 }
 
-void AUnderWorldCharacter::AttackByTrap()
+void ASurvivorCharacter::AttackByTrap()
 {
 	SetECharacterState(ECharacterState::TRAP);
 	GetCharacterMovement()->StopMovementImmediately();
 }
 
-bool AUnderWorldCharacter::IsWalking() const
+bool ASurvivorCharacter::IsWalking() const
 {
 	return GetCharacterMovement()->Velocity.Length() > 0;
 }
 
-bool AUnderWorldCharacter::IsRunning() const
+bool ASurvivorCharacter::IsRunning() const
 {
 	return GetCharacterMovement()->MaxWalkSpeed == RunSpeed * SpeedUp;
 }
 
-bool AUnderWorldCharacter::IsHaveGadget() const
+bool ASurvivorCharacter::IsHaveGadget() const
 {
 	return GetItemCount(EItemType::GADGET, 0) > 0;
 }
 
-bool AUnderWorldCharacter::IsHaveKey() const
+bool ASurvivorCharacter::IsHaveKey() const
 {
 	return GetItemCount(EItemType::KEY, 0) > 0;
 }
 
-int AUnderWorldCharacter::GetItemCount(EItemType type, int level) const
+int ASurvivorCharacter::GetItemCount(EItemType type, int level) const
 {
 	return InventoryComponent->GetHaveItemCount(type, level);
 }
