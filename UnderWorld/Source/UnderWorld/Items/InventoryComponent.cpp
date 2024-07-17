@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InventoryComponent.h"
-#include "Item.h"
 #include "Logging/LogMacros.h"
+#include "Item.h"
 
 UInventoryComponent::UInventoryComponent()
 {
@@ -11,32 +11,32 @@ UInventoryComponent::UInventoryComponent()
 
 	for (int i = 0; i < (int)EItemType::MAX; ++i)
 	{
-		TArray<Item> items;
+		TArray<ItemInfo> Items;
 
 		switch ((EItemType)i)
 		{
 			case EItemType::KEY:
 			case EItemType::GADGET:
 			{
-				Item item(0, 0);
-				items.Add(item);
+				ItemInfo Item(0, 0);
+				Items.Add(Item);
 				break;
 			}
 		}
 
-		HaveItemMap.Add((EItemType)i, items);
+		HaveItemMap.Add((EItemType)i, Items);
 		PutItemMap.Add((EItemType)i, 0);
 	}
 }
 
-void UInventoryComponent::BeginOverlap(AItem* item)
+void UInventoryComponent::BeginOverlap(AItem* Item)
 {
-	PickItemArray.Add(item);
+	PickItemArray.Add(Item);
 }
 
-void UInventoryComponent::EndOverlap(AItem* item)
+void UInventoryComponent::EndOverlap(AItem* Item)
 {
-	PickItemArray.Remove(item);
+	PickItemArray.Remove(Item);
 }
 
 bool UInventoryComponent::Input()
@@ -55,9 +55,10 @@ bool UInventoryComponent::Input()
 				if (GetHaveItemCount(OverlapItem->Type, OverlapItem->Level) == 0)
 				{
 					Pick = true;
-					Item item(OverlapItem->Level, 1);
-					HaveItemMap[OverlapItem->Type].Add(item);
-					character->ItemPutOn(OverlapItem->Type, OverlapItem->Level);
+
+					ItemInfo Item(OverlapItem->Level, 1);
+					HaveItemMap[OverlapItem->Type].Add(Item);
+					Character->ItemPutOn(OverlapItem->Type, OverlapItem->Level);
 				}
 				break;
 			}
@@ -91,17 +92,17 @@ bool UInventoryComponent::Input()
 	return Pick;
 }
 
-void UInventoryComponent::PutOn(EItemType type, int level)
+void UInventoryComponent::PutOn(EItemType Type, int Level)
 {
-	PutItemMap[type] = level;
+	PutItemMap[Type] = Level;
 }
 
-void UInventoryComponent::Remove(EItemType type, int level)
+void UInventoryComponent::Remove(EItemType Type, int Level)
 {
-	if (type == EItemType::KEY || type == EItemType::GADGET)
+	if (Type == EItemType::KEY || Type == EItemType::GADGET)
 	{
-		if (HaveItemMap[type][0].Count > 0)
-			HaveItemMap[type][0].Count--;
+		if (HaveItemMap[Type][0].Count > 0)
+			HaveItemMap[Type][0].Count--;
 	}
 }
 

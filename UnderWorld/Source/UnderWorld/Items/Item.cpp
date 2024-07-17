@@ -25,9 +25,9 @@ void AItem::SetLevel(int InitLevel)
     StaticMesh->SetMaterial(0, Materials[InitLevel]);
 }
 
-void AItem::SetOutline(bool Active)
+void AItem::SetOutline(bool bIsActive)
 {
-    StaticMesh->SetOverlayMaterial(Active ? Materials[0] : NULL);
+    StaticMesh->SetOverlayMaterial(bIsActive ? Materials[0] : NULL);
 }
 
 void AItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

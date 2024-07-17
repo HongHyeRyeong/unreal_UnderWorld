@@ -16,6 +16,12 @@ public:
 	APrison();
 
 protected:
+	UPROPERTY()
+	UCapsuleComponent* CollisionBox;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* PrisonSound;
+
 	UFUNCTION()
 	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -24,12 +30,7 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorOpen();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorClose();
-
-	UPROPERTY(Category = Collision, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UCapsuleComponent* CollisionBox;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USoundBase* PrisonSound;
 };

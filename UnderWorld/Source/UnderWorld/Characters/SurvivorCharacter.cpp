@@ -77,7 +77,7 @@ ASurvivorCharacter::ASurvivorCharacter()
 	SpeedUpCollision->OnComponentEndOverlap.AddDynamic(this, &ASurvivorCharacter::OnEndOverlapSpeedUpCollision);
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("ItemInventory"));
-	InventoryComponent->character = this;
+	InventoryComponent->Character = this;
 }
 
 void ASurvivorCharacter::BeginPlay()

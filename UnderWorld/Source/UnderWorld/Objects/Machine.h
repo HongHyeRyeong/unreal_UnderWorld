@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "SurvivorCharacter.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/AudioComponent.h"
+#include "SurvivorCharacter.h"
 #include "Machine.generated.h"
 
 UCLASS()
@@ -16,48 +16,31 @@ class UNDERWORLD_API AMachine : public AActor
 	
 public:	
 	AMachine();
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	UFUNCTION()
-	void SetInput(bool Active);
-
-public:	
-	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION(BlueprintCallable)
-	FTransform GetRandomTransform(float Radius);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	USceneComponent* Root;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	USceneComponent* MachineWhellRoot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	USceneComponent* EnemySpawnPoint;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	UParticleSystemComponent* InstallParticleSystem;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	USpotLightComponent* CompleteLight;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	USoundBase* InstallSound;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UAudioComponent* InstallAudioComponent;
-
 	UPROPERTY()
-	ASurvivorCharacter* Character;
+	UAudioComponent* InstallAudioComponent;
 
 	UPROPERTY()
 	bool bIsOverlap = false;
@@ -72,8 +55,24 @@ public:
 	float InstallGauge = false;
 
 	UPROPERTY()
+	ASurvivorCharacter* Character;
+
+	UFUNCTION()
+	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void SetInput(bool bIsActive);
+
+public:
+	UPROPERTY()
 	int InstallCount = 0;
 
 	UPROPERTY()
 	int InstallCompleteCount = 3;
+
+	UFUNCTION()
+	FTransform GetRandomTransform(float Radius);
 };

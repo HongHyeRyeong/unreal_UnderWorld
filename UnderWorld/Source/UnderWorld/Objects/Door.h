@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "EnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "EnemyCharacter.h"
 #include "Door.generated.h"
 
 UCLASS()
@@ -17,15 +17,34 @@ public:
 	ADoor();
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+protected:
+	virtual void BeginPlay() override;
+
+	UPROPERTY()
 	USceneComponent* Root;
 
-	UPROPERTY(Category = Collision, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	UBoxComponent* ButtonCollision;
 
-	UPROPERTY(Category = Collision, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	UBoxComponent* ComeInEnemyCollision;
 
+	UPROPERTY(BlueprintReadWrite)
+	int DoorLightState = 0;
+
+	UPROPERTY()
+	bool bIsOpenDoor = false;
+
+	UPROPERTY()
+	bool bIsComeInEnemy = false;
+
+	UPROPERTY()
+	FTimerHandle ButtonTimerHandle;
+
+	UPROPERTY()
+	AEnemyCharacter* EnemyCharacter;
+
+public:
 	UPROPERTY()
 	bool bIsReachDoor = false;
 
@@ -58,22 +77,4 @@ public:
 
 	UFUNCTION()
 	void ComeInEnemy();
-
-protected:
-	virtual void BeginPlay() override;
-
-	UPROPERTY()
-	AEnemyCharacter* EnemyCharacter;
-
-	UPROPERTY(BlueprintReadWrite)
-	int DoorLightState = 0;
-
-	UPROPERTY()
-	bool bIsOpenDoor = false;
-
-	UPROPERTY()
-	bool bIsComeInEnemy = false;
-
-	UPROPERTY()
-	FTimerHandle ButtonTimerHandle;
 };

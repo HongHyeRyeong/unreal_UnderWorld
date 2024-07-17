@@ -129,9 +129,9 @@ void AMachine::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
     }
 }
 
-void AMachine::SetInput(bool Active)
+void AMachine::SetInput(bool bIsActive)
 {
-    bIsInput = bIsOverlap && Active;
+    bIsInput = bIsOverlap && bIsActive;
 }
 
 FTransform AMachine::GetRandomTransform(float Radius)

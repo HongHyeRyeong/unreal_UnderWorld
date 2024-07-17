@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Trap.h"
-#include "SurvivorCharacter.h"
-#include "EnemyCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "SurvivorCharacter.h"
+#include "EnemyCharacter.h"
 
 ATrap::ATrap()
 {

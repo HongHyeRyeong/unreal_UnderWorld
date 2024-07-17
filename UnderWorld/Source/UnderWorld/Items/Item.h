@@ -21,32 +21,35 @@ UCLASS()
 class UNDERWORLD_API AItem : public AActor
 {
 	GENERATED_BODY()
-	
-public:
-	AItem();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EItemType Type = EItemType::HAT;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Level = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UMaterialInterface*> Materials;
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	AItem();
+
+	UPROPERTY(EditAnywhere)
+	TArray<UMaterialInterface*> Materials;
+
+	UPROPERTY()
 	UStaticMeshComponent* StaticMesh;
 
-	UPROPERTY(Category = Collision, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	UBoxComponent* CollisionBox;
 
 	UFUNCTION()
 	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION()
 	void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:
-	void SetLevel(int Level);
-	void SetOutline(bool Active);
+	UPROPERTY(EditAnywhere)
+	EItemType Type = EItemType::HAT;
+
+	UPROPERTY()
+	int Level = 1;
+
+	UFUNCTION()
+	void SetLevel(int InitLevel);
+
+	UFUNCTION()
+	void SetOutline(bool bIsActive);
 };
