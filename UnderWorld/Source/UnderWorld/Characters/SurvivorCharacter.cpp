@@ -395,7 +395,7 @@ void ASurvivorCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* Over
 	}
 }
 
-void ASurvivorCharacter::AttackByEnemy(bool front)
+void ASurvivorCharacter::AttackByEnemy(bool Front)
 {
 	if (State == ECharacterState::AVOID || State == ECharacterState::DOWN || State == ECharacterState::DOWN_FRONT || State == ECharacterState::DIE)
 		return;
@@ -425,7 +425,7 @@ void ASurvivorCharacter::AttackByEnemy(bool front)
 	}
 	else
 	{
-		SetECharacterState(front ? ECharacterState::DOWN_FRONT : ECharacterState::DOWN);
+		SetECharacterState(Front ? ECharacterState::DOWN_FRONT : ECharacterState::DOWN);
 	}
 }
 
@@ -435,14 +435,14 @@ void ASurvivorCharacter::AttackByTrap()
 	GetCharacterMovement()->StopMovementImmediately();
 }
 
-void ASurvivorCharacter::SetECharacterState(ECharacterState value)
+void ASurvivorCharacter::SetECharacterState(ECharacterState NewState)
 {
 	if (State == ECharacterState::MACHINE_INSTALL)
 		OnInputMachineInstall.Broadcast(false);
 
-	AttackCollision->SetGenerateOverlapEvents(value == ECharacterState::ATTACK);
+	AttackCollision->SetGenerateOverlapEvents(NewState == ECharacterState::ATTACK);
 
-	State = value;
+	State = NewState;
 	OnChangeState.Broadcast(State);
 }
 
@@ -466,7 +466,7 @@ bool ASurvivorCharacter::IsHaveKey() const
 	return GetItemCount(EItemType::KEY, 0) > 0;
 }
 
-int ASurvivorCharacter::GetItemCount(EItemType type, int level) const
+int ASurvivorCharacter::GetItemCount(EItemType Type, int Level) const
 {
-	return InventoryComponent->GetHaveItemCount(type, level);
+	return InventoryComponent->GetHaveItemCount(Type, Level);
 }

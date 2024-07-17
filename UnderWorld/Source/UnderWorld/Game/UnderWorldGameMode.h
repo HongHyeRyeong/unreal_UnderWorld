@@ -15,6 +15,9 @@ class AUnderWorldGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+public:
+	AUnderWorldGameMode();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -48,14 +51,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ACharacter> EnemyCharacterClass;
 
+	UPROPERTY(BlueprintReadOnly)
+	int Stage = 0;
+
 	UPROPERTY()
 	int MachineInstallCompleteCount = 0;
-
-public:
-	AUnderWorldGameMode();
-
-	UPROPERTY(BlueprintReadWrite)
-	int Stage = 0;
 
 	UPROPERTY()
 	ASurvivorCharacter* SurvivorCharacter;
@@ -78,9 +78,7 @@ public:
 	UPROPERTY()
 	UAudioComponent* BGMAudioComponent;
 
-	UFUNCTION()
-	void ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass);
-
+public:
 	UFUNCTION(BlueprintCallable)
 	void StartGame(int StartStage);
 
@@ -89,6 +87,9 @@ public:
 
 	UFUNCTION()
 	void ClearGame();
+
+	UFUNCTION()
+	void ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass);
 
 	UFUNCTION()
 	void SpawnItem();

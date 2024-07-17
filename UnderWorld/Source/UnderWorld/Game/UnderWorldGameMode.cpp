@@ -1,12 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UnderWorldGameMode.h"
-#include "SurvivorCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "SurvivorCharacter.h"
 
 AUnderWorldGameMode::AUnderWorldGameMode()
 {
@@ -91,7 +91,7 @@ void AUnderWorldGameMode::RestartGame()
 void AUnderWorldGameMode::ClearGame()
 {
 	SurvivorCharacter->SetECharacterState(ECharacterState::CLEAR);
-	EnemyCharacter->ClearGame();
+	EnemyCharacter->SetECharacterState(EEnemyCharacterState::DIE);
 
 	ChangeMenuWidget(ClearWidget);
 	UGameplayStatics::PlaySound2D(GetWorld(), ClearSound);

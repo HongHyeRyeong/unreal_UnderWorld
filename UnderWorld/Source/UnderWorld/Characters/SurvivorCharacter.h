@@ -121,16 +121,16 @@ protected:
 	UPROPERTY()
 	UAudioComponent* WalkAudioComponent;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	float Hp = 100;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	int MaxHP = 100;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	float Stamina = 100;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	float MaxStamina = 100;
 
 	UPROPERTY()
@@ -145,13 +145,13 @@ protected:
 	UPROPERTY()
 	float InstallDefaultSpeed = 10.0f;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	float AttackTimer = 0;
 
 	UPROPERTY()
 	float AttackTime = 3;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	float CounterAttackTimer = 0;
 
 	UPROPERTY()
@@ -173,11 +173,11 @@ public:
 	UPROPERTY()
 	UInventoryComponent* InventoryComponent;
 
-	UFUNCTION()
-	void ItemPutOn(EItemType type, int level);
+	UFUNCTION(BlueprintCallable)
+	void ItemPutOn(EItemType Type, int Level);
 
 	UFUNCTION()
-	void ItemRemove(EItemType type, int level);
+	void ItemRemove(EItemType Type, int Level);
 
 	UFUNCTION()
 	void OnBeginOverlapSpeedUpCollision(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -189,13 +189,13 @@ public:
 	void OnBeginOverlapAttackCollision(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void AttackByEnemy(bool front);
+	void AttackByEnemy(bool Front);
 
 	UFUNCTION()
 	void AttackByTrap();
 
 	UFUNCTION()
-	void SetECharacterState(ECharacterState value);
+	void SetECharacterState(ECharacterState NewState);
 
 	UFUNCTION()
 	bool IsWalking() const;
@@ -210,7 +210,7 @@ public:
 	bool IsHaveKey() const;
 
 	UFUNCTION(BlueprintPure)
-	int GetItemCount(EItemType type, int level) const;
+	int GetItemCount(EItemType Type, int Level) const;
 
 	UPROPERTY(BlueprintAssignable)
 	FXFDeleState OnChangeState;

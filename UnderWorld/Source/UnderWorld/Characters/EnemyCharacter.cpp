@@ -53,11 +53,6 @@ void AEnemyCharacter::RestartGame()
 	EnemyAIController->RestartGame();
 }
 
-void AEnemyCharacter::ClearGame()
-{
-	SetECharacterState(EEnemyCharacterState::DIE);
-}
-
 void AEnemyCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AttackCollision->SetGenerateOverlapEvents(false);
