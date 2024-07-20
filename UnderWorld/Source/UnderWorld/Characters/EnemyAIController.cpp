@@ -49,12 +49,12 @@ void AEnemyAIController::StartGame(int StartStage)
 		}), 1, false);
 
 	ChaseAudioComponent = UGameplayStatics::SpawnSoundAttached(ChaseSound, GetPawn()->GetRootComponent());
-	ChaseAudioComponent->Stop();
+	ChaseAudioComponent->SetVolumeMultiplier(0);
 }
 
 void AEnemyAIController::RestartGame()
 {
-	if (ChaseAudioComponent->IsPlaying())
+	if (ChaseAudioComponent->VolumeMultiplier == 1)
 		ChaseAudioComponent->FadeOut(0.5f, 0);
 }
 
@@ -70,7 +70,7 @@ void AEnemyAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 		GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
 
-		if (ChaseAudioComponent->IsPlaying() == false)
+		if (ChaseAudioComponent->VolumeMultiplier == 0)
 			ChaseAudioComponent->FadeIn(0.5f);
 	}
 	else
@@ -86,7 +86,7 @@ void AEnemyAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 
 		CheckTeleport();
 
-		if (ChaseAudioComponent->IsPlaying())
+		if (ChaseAudioComponent->VolumeMultiplier == 1)
 			ChaseAudioComponent->FadeOut(0.5f, 0);
 	}
 }
@@ -122,7 +122,7 @@ void AEnemyAIController::ComeInEnemy()
 	GetBlackboardComponent()->SetValueAsBool("HasLineOfSight", true);
 	GetBlackboardComponent()->SetValueAsObject("EnemyActor", Cast<AActor>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)));
 
-	if (ChaseAudioComponent->IsPlaying() == false)
+	if (ChaseAudioComponent->VolumeMultiplier == 0)
 		ChaseAudioComponent->FadeIn(0.5f);
 }
 

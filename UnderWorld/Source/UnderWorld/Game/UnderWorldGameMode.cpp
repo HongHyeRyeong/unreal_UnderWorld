@@ -24,6 +24,18 @@ void AUnderWorldGameMode::BeginPlay()
 	for (AActor* a : FoundActors)
 		EnemySpawnPoints.Add(Cast<ASpawnPoint>(a));
 
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ASpawnPoint::StaticClass(), "Item", FoundActors);
+	for (AActor* a : FoundActors)
+		ItemSpawnPoints.Add(Cast<ASpawnPoint>(a));
+
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ASpawnPoint::StaticClass(), "OutsideItem", FoundActors);
+	for (AActor* a : FoundActors)
+		OutsideItemSpawnPoints.Add(Cast<ASpawnPoint>(a));
+
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ASpawnPoint::StaticClass(), "InsideItem", FoundActors);
+	for (AActor* a : FoundActors)
+		InsideItemSpawnPoints.Add(Cast<ASpawnPoint>(a));
+
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMachine::StaticClass(), FoundActors);
 	for (AActor* a : FoundActors)
 		Machines.Add(Cast<AMachine>(a));
@@ -36,7 +48,7 @@ void AUnderWorldGameMode::StartGame(int StartStage)
 	Stage = StartStage;
 
 	ChangeMenuWidget(StartWidget);
-	UAudioComponent* StartAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), StartSound);
+	StartAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), StartSound);
 	StartAudioComponent->FadeIn(0.5f);
 
 	FTimerHandle TimerHandle;
@@ -132,79 +144,82 @@ void AUnderWorldGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetCla
 
 void AUnderWorldGameMode::SpawnItem()
 {
-	TArray<AActor*> FoundActors;
-	int HatMaxLevel = Stage;
-	int BagMaxLevel = FMath::Min(Stage, 2);
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
-
 	if (Stage == 3)
 	{
-		UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ASpawnPoint::StaticClass(), "Item", FoundActors);
-
 		FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
-				AItem* Item;
 				int RandomItemType = FMath::RandRange(0, 5);
-				int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
+				int SpawnIndex = FMath::RandRange(0, ItemSpawnPoints.Num() - 1);
+
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+				SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 
 				if (RandomItemType == (int)EItemType::HAT)
 				{
-					int RandomItemLevel = FMath::RandRange(1, HatMaxLevel);
-					Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::HAT], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+					int RandomItemLevel = FMath::RandRange(1, 3);
+					AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::HAT], ItemSpawnPoints[SpawnIndex]->GetActorTransform(), SpawnParams);
 					Item->SetLevel(RandomItemLevel);
+					Item->SetLifeSpan(7);
 				}
 				else if (RandomItemType == (int)EItemType::BAG)
 				{
-					int RandomItemLevel = FMath::RandRange(1, BagMaxLevel);
-					Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::BAG], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+					int RandomItemLevel = FMath::RandRange(1, 2);
+					AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::BAG], ItemSpawnPoints[SpawnIndex]->GetActorTransform(), SpawnParams);
 					Item->SetLevel(RandomItemLevel);
+					Item->SetLifeSpan(7);
 				}
 				else
 				{
-					Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::GADGET], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+					AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::GADGET], ItemSpawnPoints[SpawnIndex]->GetActorTransform(), SpawnParams);
+					Item->SetLifeSpan(7);
 				}
 
-				Item->SetLifeSpan(7);
 			}), 5, true);
 	}
 	else
 	{
-		UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ASpawnPoint::StaticClass(), "Item", FoundActors);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 
-		for (int i = 0; i < HatMaxLevel; ++i) {
-			int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
-			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::HAT], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+		TArray<FTransform> SpawnPoints;
+		for (ASpawnPoint* a : OutsideItemSpawnPoints)
+			SpawnPoints.Add(a->GetActorTransform());
+
+		for (int i = 0; i < Stage; ++i) {
+			int SpawnIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
+			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::HAT], SpawnPoints[SpawnIndex], SpawnParams);
 			Item->SetLevel(i + 1);
 
-			FoundActors.Remove(FoundActors[SpawnIndex]);
+			SpawnPoints.RemoveAt(SpawnIndex);
 		}
 
-		for (int i = 0; i < BagMaxLevel; ++i) {
-			int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
-			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::BAG], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+		for (int i = 0; i < Stage; ++i) {
+			int SpawnIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
+			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::BAG], SpawnPoints[SpawnIndex], SpawnParams);
 			Item->SetLevel(i + 1);
 
-			FoundActors.Remove(FoundActors[SpawnIndex]);
+			SpawnPoints.RemoveAt(SpawnIndex);
 		}
 
 		for (int i = 0; i < 3; ++i) {
-			int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
-			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::KEY], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+			int SpawnIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
+			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::KEY], SpawnPoints[SpawnIndex], SpawnParams);
 
-			FoundActors.Remove(FoundActors[SpawnIndex]);
+			SpawnPoints.RemoveAt(SpawnIndex);
 		}
 
-		UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ASpawnPoint::StaticClass(), "Gadget", FoundActors);
+		SpawnPoints.Reset();
+		for (ASpawnPoint* a : InsideItemSpawnPoints)
+			SpawnPoints.Add(a->GetActorTransform());
 
 		for (int i = 0; i < 10; ++i) {
-			int SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
-			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::GADGET], FoundActors[SpawnIndex]->GetActorTransform(), SpawnParams);
+			int SpawnIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
+			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::GADGET], SpawnPoints[SpawnIndex], SpawnParams);
 
-			FoundActors.Remove(FoundActors[SpawnIndex]);
+			SpawnPoints.RemoveAt(SpawnIndex);
 		}
 	}
 }
@@ -212,8 +227,6 @@ void AUnderWorldGameMode::SpawnItem()
 void AUnderWorldGameMode::SpawnEnemy()
 {
 	FTimerHandle TimerHandle;
-	float DelayTime = 5;
-
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
 			int SpawnIndex;
@@ -221,12 +234,12 @@ void AUnderWorldGameMode::SpawnEnemy()
 
 			if (Stage == 3)
 			{
-				SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
+				SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num() - 1);
 				SpawnTransform = EnemySpawnPoints[SpawnIndex]->GetActorTransform();
 			}
 			else
 			{
-				SpawnIndex = FMath::RandRange(0, Machines.Num());
+				SpawnIndex = FMath::RandRange(0, Machines.Num() - 1);
 				SpawnTransform = Machines[SpawnIndex]->GetRandomTransform(700);
 			}
 
@@ -237,7 +250,7 @@ void AUnderWorldGameMode::SpawnEnemy()
 			EnemyCharacter->StartGame(Stage);
 
 			GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-		}), DelayTime, false);
+		}), 5, false);
 }
 
 void AUnderWorldGameMode::TeleportEnemy()
@@ -248,7 +261,7 @@ void AUnderWorldGameMode::TeleportEnemy()
 	{
 		SetDoorReachPoint();
 
-		int RandomIndex = FMath::RandRange(0, EnemySpawnPoints.Num());
+		int RandomIndex = FMath::RandRange(0, EnemySpawnPoints.Num() - 1);
 		TeleportTransform = EnemySpawnPoints[RandomIndex]->GetActorTransform();
 	}
 	else
@@ -304,7 +317,7 @@ void AUnderWorldGameMode::CompleteMachineInstall()
 
 void AUnderWorldGameMode::SetDoorReachPoint()
 {
-	int RandomIndex = FMath::RandRange(0, Doors.Num());
+	int RandomIndex = FMath::RandRange(0, Doors.Num() - 1);
 	DoorReachPoint->SetActorLocation(Doors[RandomIndex]->GetActorLocation());
 	Doors[RandomIndex]->bIsReachDoor = true;
 }

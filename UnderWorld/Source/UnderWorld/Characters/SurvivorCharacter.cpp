@@ -184,8 +184,8 @@ void ASurvivorCharacter::Tick(float DeltaTime)
 	// »ç¿îµå
 	if (State == ECharacterState::LAND && IsWalking())
 	{
-		if (WalkAudioComponent->IsPlaying() == false)
-			WalkAudioComponent->Play();
+		if (WalkAudioComponent->VolumeMultiplier == 0)
+			WalkAudioComponent->SetVolumeMultiplier(1);
 
 		float PitchMultiplier = IsWalking() ? 0.9f : 1.2f;
 		if (WalkAudioComponent->PitchMultiplier != PitchMultiplier)
@@ -193,8 +193,8 @@ void ASurvivorCharacter::Tick(float DeltaTime)
 	}
 	else
 	{
-		if (WalkAudioComponent->IsPlaying())
-			WalkAudioComponent->Stop();
+		if (WalkAudioComponent->VolumeMultiplier == 1)
+			WalkAudioComponent->SetVolumeMultiplier(0);
 	}
 }
 

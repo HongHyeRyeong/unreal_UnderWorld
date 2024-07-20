@@ -67,6 +67,15 @@ protected:
 	TArray<ASpawnPoint*> EnemySpawnPoints;
 
 	UPROPERTY()
+	TArray<ASpawnPoint*> ItemSpawnPoints;
+
+	UPROPERTY()
+	TArray<ASpawnPoint*> OutsideItemSpawnPoints;
+
+	UPROPERTY()
+	TArray<ASpawnPoint*> InsideItemSpawnPoints;
+
+	UPROPERTY()
 	TArray<AMachine*> Machines;
 
 	UPROPERTY()
@@ -74,6 +83,9 @@ protected:
 
 	UPROPERTY()
 	ASpawnPoint* DoorReachPoint;
+
+	UPROPERTY()
+	UAudioComponent* StartAudioComponent;
 
 	UPROPERTY()
 	UAudioComponent* BGMAudioComponent;

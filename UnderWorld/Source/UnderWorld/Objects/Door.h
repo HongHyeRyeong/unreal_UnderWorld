@@ -23,10 +23,10 @@ protected:
 	UPROPERTY()
 	USceneComponent* Root;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UBoxComponent* ButtonCollision;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UBoxComponent* ComeInEnemyCollision;
 
 	UPROPERTY(BlueprintReadWrite)

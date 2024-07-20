@@ -28,28 +28,37 @@ void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemyCharacter::StaticClass());
-	EnemyCharacter = Cast<AEnemyCharacter>(FoundActor);
+	DoorLightState = 0;
+	SetDoorLightState();
+
 	bIsComeInEnemy = false;
 
-	DoorOpen();
+	SetDoorOpen(true);
 }
 
 void ADoor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsComeInEnemy == false)
+	if (IsValid(EnemyCharacter) == false)
+	{
+		AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemyCharacter::StaticClass());
+		EnemyCharacter = Cast<AEnemyCharacter>(FoundActor);
+	}
+
+	if (IsValid(EnemyCharacter) && bIsComeInEnemy == false)
 	{
 		float Distance = EnemyCharacter->GetDistanceTo(this);
 		int NewDoorLightState = 0;
 
-		if (Distance <= 500)
-			DoorLightState = 3;
-		else if (Distance <= 1000)
-			DoorLightState = 2;
-		else if (Distance <= 1500)
-			DoorLightState = 1;
+		if (Distance <= 350)
+			NewDoorLightState = 3;
+		else if (Distance <= 550)
+			NewDoorLightState = 2;
+		else if (Distance <= 750)
+			NewDoorLightState = 1;
+		else
+			NewDoorLightState = 0;
 
 		if (DoorLightState != NewDoorLightState)
 		{
@@ -66,6 +75,7 @@ void ADoor::OnBeginOverlapButton(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	if (bIsComeInEnemy)
 		return;
 
+	GetWorld()->GetTimerManager().ClearTimer(ButtonTimerHandle);
 	GetWorld()->GetTimerManager().SetTimer(ButtonTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
 			SetDoorOpen(false);
@@ -118,7 +128,7 @@ void ADoor::SetDoorOpen(bool bIsOpen)
 	{
 		DoorClose();
 
-		if (bIsReachDoor)
+		if (bIsReachDoor && bIsComeInEnemy==false)
 		{
 			bIsReachDoor = false;
 
