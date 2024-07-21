@@ -55,7 +55,7 @@ void AMachine::Tick(float DeltaTime)
     bool IsCanStall = false;
 
     if (bIsOverlap && bIsInput)
-        if (IsValid(Character) && Character->IsHaveGadget())
+        if (IsValid(SurvivorCharacter) && SurvivorCharacter->IsHaveGadget())
             if (InstallCount < InstallCompleteCount)
                 IsCanStall = true;
 
@@ -65,21 +65,21 @@ void AMachine::Tick(float DeltaTime)
         {
             bIsInstall = true;
 
-            Character->SetECharacterState(ECharacterState::MACHINE_INSTALL);
+            SurvivorCharacter->SetECharacterState(ECharacterState::MACHINE_INSTALL);
 
             if (IsValid(InstallAudioComponent) == false)
                 InstallAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), InstallSound);
             InstallAudioComponent->FadeIn(0.5f);
         }
 
-        InstallGauge += Character->InstallSpeed * DeltaTime;
+        InstallGauge += SurvivorCharacter->InstallSpeed * DeltaTime;
         MachineWhellRoot->AddLocalRotation(FRotator(0, 0, 2));
 
         if (InstallGauge >= 100)
         {
             InstallGauge = 0;
             InstallCount++;
-            Character->ItemRemove(EItemType::GADGET, 0);
+            SurvivorCharacter->ItemRemove(EItemType::GADGET, 0);
         }
     }
     else
@@ -88,8 +88,8 @@ void AMachine::Tick(float DeltaTime)
         {
             bIsInstall = false;
 
-            if (Character->State == ECharacterState::MACHINE_INSTALL)
-                Character->SetECharacterState(ECharacterState::LAND);
+            if (SurvivorCharacter->State == ECharacterState::MACHINE_INSTALL)
+                SurvivorCharacter->SetECharacterState(ECharacterState::LAND);
 
             InstallAudioComponent->FadeOut(0.3f, 0);
 
@@ -110,10 +110,10 @@ void AMachine::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
     ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
     if (OtherCharacter)
     {
-        if (Character == NULL) 
+        if (SurvivorCharacter == NULL)
         {
-            Character = OtherCharacter;
-            Character->OnInputMachineInstall.AddDynamic(this, &AMachine::SetInput);
+            SurvivorCharacter = OtherCharacter;
+            SurvivorCharacter->OnInputMachineInstall.AddDynamic(this, &AMachine::SetInput);
         }
 
         bIsOverlap = true;

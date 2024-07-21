@@ -19,28 +19,24 @@ ATrap::ATrap()
 
 void ATrap::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    ASurvivorCharacter* OtherCharacter = Cast<ASurvivorCharacter>(OtherActor);
-    if (OtherCharacter)
+    ASurvivorCharacter* SurvivorCharacter = Cast<ASurvivorCharacter>(OtherActor);
+    if (SurvivorCharacter)
     {
-        OtherCharacter->AttackByTrap();
-        OtherCharacter->OnChangeState.AddDynamic(this, &ATrap::DestroyTrap);
+        SurvivorCharacter->AttackByTrap();
+        SurvivorCharacter->OnChangeState.AddDynamic(this, &ATrap::DestroyTrap);
 
         // 트랩 발동 시 적 캐릭터 순간 이동
-        AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemyCharacter::StaticClass());
-        float Distance = GetDistanceTo(FoundActor);
-
-        if (Distance > 100)
+        AEnemyCharacter* EnemyCharacter = Cast<AEnemyCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemyCharacter::StaticClass()));
+        if (GetDistanceTo(EnemyCharacter) > 100)
         {
             FTimerHandle TimerHandle;
-            float DelayTime = 4;
-
             GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
                 {
-                    AEnemyCharacter* Enemy = Cast<AEnemyCharacter>(FoundActor);
                     FVector Location = GetActorLocation() + FVector(50, 0, 0);
-                    Enemy->Teleport(UKismetMathLibrary::MakeTransform(Location, UKismetMathLibrary::FindLookAtRotation(Location, GetActorLocation())));
+                    EnemyCharacter = Cast<AEnemyCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemyCharacter::StaticClass()));
+                    EnemyCharacter->Teleport(UKismetMathLibrary::MakeTransform(Location, UKismetMathLibrary::FindLookAtRotation(Location, GetActorLocation())));
                     GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-                }), DelayTime, false);
+                }), 4, false);
 
         }
     }

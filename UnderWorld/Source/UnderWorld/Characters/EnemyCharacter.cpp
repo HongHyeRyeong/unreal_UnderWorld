@@ -28,6 +28,9 @@ AEnemyCharacter::AEnemyCharacter()
 	AttackCollision->SetCollisionProfileName(TEXT("OverlapOnlySurvivor"));
 	AttackCollision->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::OnBeginOverlapAttackCollision);
 	AttackCollision->SetGenerateOverlapEvents(false);
+
+	TrapSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("TrapSpawnPoint"));
+	TrapSpawnPoint->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void AEnemyCharacter::BeginPlay()
@@ -101,10 +104,7 @@ void AEnemyCharacter::InstallTrap()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 
-	FTransform SpawnTransform = GetActorTransform();
-	SpawnTransform.SetLocation(SpawnTransform.GetLocation() + FVector(38, 0, -48));
-
-	GetWorld()->SpawnActor<ATrap>(TrapClass, SpawnTransform, SpawnParams);
+	GetWorld()->SpawnActor<ATrap>(TrapClass, TrapSpawnPoint->GetComponentTransform(), SpawnParams);
 	SetECharacterState(EEnemyCharacterState::TRAP);
 }
 
@@ -112,7 +112,7 @@ void AEnemyCharacter::SetECharacterState(EEnemyCharacterState NewState)
 {
 	State = NewState;
 
-	AttackCollision->SetGenerateOverlapEvents(NewState == EEnemyCharacterState::ATTACK);
+	AttackCollision->SetGenerateOverlapEvents(State == EEnemyCharacterState::ATTACK);
 	EnemyAIController->SetBlackboardActionValue(State != EEnemyCharacterState::LAND);
 }
 

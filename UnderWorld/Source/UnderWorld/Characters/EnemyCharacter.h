@@ -41,8 +41,11 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> TeleportEffectClass;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	USphereComponent* AttackCollision;
+
+	UPROPERTY(EditAnywhere)
+	USceneComponent* TrapSpawnPoint;
 
 	UPROPERTY()
 	int Stage = 0;

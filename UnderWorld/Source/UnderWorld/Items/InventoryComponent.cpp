@@ -60,7 +60,7 @@ bool UInventoryComponent::Input()
 
 					ItemInfo Item(OverlapItem->Level, 1);
 					HaveItemMap[OverlapItem->Type].Add(Item);
-					Character->ItemPutOn(OverlapItem->Type, OverlapItem->Level);
+					SurvivorCharacter->ItemPutOn(OverlapItem->Type, OverlapItem->Level);
 				}
 				break;
 			}

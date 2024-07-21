@@ -88,7 +88,7 @@ void ASurvivorCharacter::BeginPlay()
 	Stamina = MaxStamina;
 	InstallSpeed = InstallDefaultSpeed;
 
-	InventoryComponent->Character = this;
+	InventoryComponent->SurvivorCharacter = this;
 	HatMesh->SetVisibility(false);
 	BagMesh->SetVisibility(false);
 

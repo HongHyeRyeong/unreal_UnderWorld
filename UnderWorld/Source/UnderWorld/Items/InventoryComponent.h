@@ -40,7 +40,7 @@ protected:
 
 public:
 	UPROPERTY()
-	ASurvivorCharacter* Character;
+	ASurvivorCharacter* SurvivorCharacter;
 
 	void BeginOverlap(AItem* Item);
 	void EndOverlap(AItem* Item);

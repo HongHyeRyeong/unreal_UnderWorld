@@ -93,7 +93,8 @@ void AUnderWorldGameMode::RestartGame()
 
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 				{
-					UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Stage" + Stage)));
+					const FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+					UGameplayStatics::OpenLevel(GetWorld(), FName(CurrentLevelName));
 
 					GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 				}), 5, false);
@@ -123,7 +124,9 @@ void AUnderWorldGameMode::ClearGame()
 			}
 			else
 			{
-				UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Stage" + (Stage + 1))));
+				FString NextLevelName = TEXT("Stage");
+				NextLevelName += FString::FromInt(Stage + 1);
+				UGameplayStatics::OpenLevel(GetWorld(), FName(NextLevelName));
 			}
 		}), 10, false);
 }
@@ -298,7 +301,14 @@ void AUnderWorldGameMode::TeleportEnemy()
 	}
 
 	if (EnemyCharacter->Teleport(TeleportTransform) == false)
-		TeleportEnemy();
+	{
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				TeleportEnemy();
+				GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+			}), 1, false);
+	}
 }
 
 void AUnderWorldGameMode::CompleteMachineInstall()
