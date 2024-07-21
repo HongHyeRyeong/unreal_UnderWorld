@@ -255,6 +255,9 @@ void AUnderWorldGameMode::SpawnEnemy()
 
 void AUnderWorldGameMode::TeleportEnemy()
 {
+	if (IsValid(EnemyCharacter) == false)
+		return;
+
 	FTransform TeleportTransform;
 
 	if (Stage == 3)

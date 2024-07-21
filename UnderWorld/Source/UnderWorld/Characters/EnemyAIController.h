@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "EnemyAIController.generated.h"
 
@@ -12,12 +13,15 @@ class UNDERWORLD_API AEnemyAIController : public AAIController
 {
 	GENERATED_BODY()
 
+public:
+	AEnemyAIController();
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UBehaviorTree*> BehaviorTree;
 
 	UPROPERTY()
-	TObjectPtr<UAIPerceptionComponent> AIPerceptionComponent;
+	UAIPerceptionComponent* AIPerceptionComponent;
 
 	UPROPERTY()
 	UAISenseConfig_Sight* AIPerceptionSignt;

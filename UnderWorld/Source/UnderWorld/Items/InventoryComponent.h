@@ -21,10 +21,9 @@ class UNDERWORLD_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
-	UInventoryComponent();
-
 protected:
+	virtual void BeginPlay();
+
 	UPROPERTY()
 	TArray<AItem*> PickItemArray;
 

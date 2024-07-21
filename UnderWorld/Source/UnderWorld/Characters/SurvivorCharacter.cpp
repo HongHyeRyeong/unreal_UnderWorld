@@ -77,7 +77,6 @@ ASurvivorCharacter::ASurvivorCharacter()
 	SpeedUpCollision->OnComponentEndOverlap.AddDynamic(this, &ASurvivorCharacter::OnEndOverlapSpeedUpCollision);
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("ItemInventory"));
-	InventoryComponent->Character = this;
 }
 
 void ASurvivorCharacter::BeginPlay()
@@ -85,11 +84,13 @@ void ASurvivorCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	Hp = MaxHP;
-
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * SpeedUp;
 	Stamina = MaxStamina;
-
 	InstallSpeed = InstallDefaultSpeed;
+
+	InventoryComponent->Character = this;
+	HatMesh->SetVisibility(false);
+	BagMesh->SetVisibility(false);
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{

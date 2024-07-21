@@ -8,6 +8,25 @@
 #include "Components/AudioComponent.h"
 #include "UnderWorldGameMode.h"
 
+AEnemyAIController::AEnemyAIController()
+{
+	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
+	AIPerceptionSignt = CreateDefaultSubobject<UAISenseConfig_Sight>("Sight");
+
+	AIPerceptionComponent->ConfigureSense(*AIPerceptionSignt);
+	AIPerceptionComponent->SetDominantSense(AIPerceptionSignt->GetSenseImplementation());
+
+	AIPerceptionSignt->SightRadius = 1500.f;
+	AIPerceptionSignt->LoseSightRadius = 2000.f;
+	AIPerceptionSignt->PeripheralVisionAngleDegrees = 60.0f;
+	AIPerceptionSignt->DetectionByAffiliation.bDetectEnemies = true;
+	AIPerceptionSignt->DetectionByAffiliation.bDetectNeutrals = true;
+	AIPerceptionSignt->DetectionByAffiliation.bDetectFriendlies = false;
+
+	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::TargetPerceptionUpdated);
+	AIPerceptionComponent->SetSenseEnabled(AIPerceptionSignt->GetClass(), false);
+}
+
 void AEnemyAIController::StartGame(int StartStage)
 {
 	Stage = StartStage;
@@ -22,25 +41,7 @@ void AEnemyAIController::StartGame(int StartStage)
 			else
 			{
 				RunBehaviorTree(BehaviorTree[0]);
-
-				AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
-				AIPerceptionSignt = CreateDefaultSubobject<UAISenseConfig_Sight>("Sight");
-
-				if (AIPerceptionComponent && AIPerceptionSignt)
-				{
-					AIPerceptionComponent->ConfigureSense(*AIPerceptionSignt);
-					AIPerceptionComponent->SetDominantSense(AIPerceptionSignt->GetSenseImplementation());
-
-					AIPerceptionSignt->SightRadius = 1500.f;
-					AIPerceptionSignt->LoseSightRadius = 2000.f;
-					AIPerceptionSignt->PeripheralVisionAngleDegrees = 60.0f;
-
-					AIPerceptionSignt->DetectionByAffiliation.bDetectEnemies = true;
-					AIPerceptionSignt->DetectionByAffiliation.bDetectNeutrals = true;
-					AIPerceptionSignt->DetectionByAffiliation.bDetectFriendlies = false;
-				}
-
-				AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::TargetPerceptionUpdated);
+				AIPerceptionComponent->SetSenseEnabled(AIPerceptionSignt->GetClass(), true);
 
 				CheckTeleport();
 			}

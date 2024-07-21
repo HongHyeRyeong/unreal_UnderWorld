@@ -4,8 +4,10 @@
 #include "Logging/LogMacros.h"
 #include "Item.h"
 
-UInventoryComponent::UInventoryComponent()
+void UInventoryComponent::BeginPlay()
 {
+	Super::BeginPlay();
+
 	keyMaxCount = 3;
 	GadgetMaxCount = 10;
 
