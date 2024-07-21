@@ -55,7 +55,7 @@ void ADoor::Tick(float DeltaTime)
 			NewDoorLightState = 3;
 		else if (Distance <= 550)
 			NewDoorLightState = 2;
-		else if (Distance <= 750)
+		else if (Distance <= 700)
 			NewDoorLightState = 1;
 		else
 			NewDoorLightState = 0;

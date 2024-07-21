@@ -37,6 +37,10 @@ void AEnemyAIController::StartGame(int StartStage)
 			if (Stage == 3)
 			{
 				RunBehaviorTree(BehaviorTree[1]);
+
+				TArray<AActor*> FoundActors;
+				UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ASpawnPoint::StaticClass(), "Door", FoundActors);
+				GetBlackboardComponent()->SetValueAsObject("EnemyActor", FoundActors[0]);
 			}
 			else
 			{

@@ -31,7 +31,7 @@ protected:
 	UPROPERTY()
 	UStaticMeshComponent* StaticMesh;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UBoxComponent* CollisionBox;
 
 	UFUNCTION()
