@@ -34,7 +34,7 @@ void AMachine::BeginPlay()
 	Super::BeginPlay();
 
     InstallCount = 0;
-    InstallCompleteCount = 3;
+    InstallCompleteCount = 1;
 
     TArray<UBoxComponent*> InstallCollisions;
     this->GetComponents<UBoxComponent>(InstallCollisions);
