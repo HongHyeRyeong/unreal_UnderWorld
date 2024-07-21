@@ -109,10 +109,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TArray<UMaterialInterface*> ItemMaterials;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	USphereComponent* AttackCollision;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	USphereComponent* SpeedUpCollision;
 
 	UPROPERTY(EditAnywhere)

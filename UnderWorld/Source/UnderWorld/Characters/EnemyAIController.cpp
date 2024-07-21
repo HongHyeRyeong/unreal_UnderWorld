@@ -48,14 +48,11 @@ void AEnemyAIController::StartGame(int StartStage)
 
 			GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		}), 1, false);
-
-	ChaseAudioComponent = UGameplayStatics::SpawnSoundAttached(ChaseSound, GetPawn()->GetRootComponent());
-	ChaseAudioComponent->SetVolumeMultiplier(0);
 }
 
 void AEnemyAIController::RestartGame()
 {
-	if (ChaseAudioComponent->VolumeMultiplier == 1)
+	if (ChaseAudioComponent != nullptr)
 		ChaseAudioComponent->FadeOut(0.5f, 0);
 }
 
@@ -63,7 +60,7 @@ void AEnemyAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 {
 	// TODO: 도달 가능한 위치인지? 체크?
 
-	if (Actor->ActorHasTag("Player") && Stimulus.SensingSucceeded)
+	if (Actor->ActorHasTag("Player") && Stimulus.WasSuccessfullySensed())
 	{
 		GetBlackboardComponent()->SetValueAsBool("HasLineOfSight", true);
 		GetBlackboardComponent()->SetValueAsObject("EnemyActor", Actor);
@@ -71,8 +68,8 @@ void AEnemyAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 		GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
 
-		if (ChaseAudioComponent->VolumeMultiplier == 0)
-			ChaseAudioComponent->FadeIn(0.5f);
+		ChaseAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), ChaseSound);
+		ChaseAudioComponent->FadeIn(0.5f);
 	}
 	else
 	{
@@ -87,7 +84,7 @@ void AEnemyAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 
 		CheckTeleport();
 
-		if (ChaseAudioComponent->VolumeMultiplier == 1)
+		if (ChaseAudioComponent != nullptr)
 			ChaseAudioComponent->FadeOut(0.5f, 0);
 	}
 }
