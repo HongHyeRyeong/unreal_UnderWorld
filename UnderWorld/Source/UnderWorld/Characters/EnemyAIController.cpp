@@ -4,6 +4,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Logging/LogMacros.h"
 #include "Sound/SoundBase.h"
 #include "Components/AudioComponent.h"
 #include "UnderWorldGameMode.h"
@@ -104,8 +105,8 @@ void AEnemyAIController::CheckTeleport()
 
 	GetWorld()->GetTimerManager().SetTimer(TeleportTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			Cast<AUnderWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->TeleportEnemy();
 			GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
+			Cast<AUnderWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->TeleportEnemy();
 		}), 15, false);
 }
 
