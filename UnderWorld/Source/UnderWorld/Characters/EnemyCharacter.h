@@ -8,6 +8,7 @@
 #include "EnemyAIController.h"
 #include "SurvivorCharacter.h"
 #include "Trap.h"
+#include "UnderWorldGameInstance.h"
 #include "EnemyCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -32,6 +33,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
+	UUnderWorldGameInstance* GameInstance;
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ATrap> TrapClass;
 
@@ -48,9 +52,6 @@ protected:
 	USceneComponent* TrapSpawnPoint;
 
 	UPROPERTY()
-	int Stage = 0;
-
-	UPROPERTY()
 	AEnemyAIController* EnemyAIController;
 
 	UPROPERTY()
@@ -61,7 +62,7 @@ public:
 	EEnemyCharacterState State = EEnemyCharacterState::LAND;
 
 	UFUNCTION()
-	void StartGame(int StartStage);
+	void StartGame();
 
 	UFUNCTION()
 	void RestartGame();

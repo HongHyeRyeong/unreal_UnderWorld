@@ -8,6 +8,7 @@
 #include "SpawnPoint.h"
 #include "Machine.h"
 #include "Door.h"
+#include "UnderWorldGameInstance.h"
 #include "UnderWorldGameMode.generated.h"
 
 UCLASS(minimalapi)
@@ -20,6 +21,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	UUnderWorldGameInstance* GameInstance;
 
 	UPROPERTY()
 	UUserWidget* CurrentWidget;
@@ -50,9 +54,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ACharacter> EnemyCharacterClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	int Stage = 0;
 
 	UPROPERTY()
 	int MachineInstallCompleteCount = 0;

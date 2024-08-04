@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "UnderWorldGameInstance.h"
 #include "EnemyAIController.generated.h"
 
 UCLASS()
@@ -17,6 +18,11 @@ public:
 	AEnemyAIController();
 
 protected:
+	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	UUnderWorldGameInstance* GameInstance;
+
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UBehaviorTree*> BehaviorTree;
 
@@ -33,9 +39,6 @@ protected:
 	UAudioComponent* ChaseAudioComponent;
 
 	UPROPERTY()
-	int Stage = 0;
-
-	UPROPERTY()
 	FTimerHandle LineOfSightTimerHandle;
 
 	UPROPERTY()
@@ -43,7 +46,7 @@ protected:
 
 public:
 	UFUNCTION()
-	void StartGame(int StartStage);
+	void StartGame();
 
 	UFUNCTION()
 	void RestartGame();

@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "SurvivorCharacter.h"
+#include "UnderWorldGameInstance.h"
 
 AUnderWorldGameMode::AUnderWorldGameMode()
 {
@@ -15,6 +16,8 @@ AUnderWorldGameMode::AUnderWorldGameMode()
 void AUnderWorldGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GameInstance = Cast<UUnderWorldGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	SurvivorCharacter = Cast<ASurvivorCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
@@ -45,7 +48,7 @@ void AUnderWorldGameMode::BeginPlay()
 
 void AUnderWorldGameMode::StartGame(int StartStage)
 {
-	Stage = StartStage;
+	GameInstance->Stage = StartStage;
 
 	ChangeMenuWidget(StartWidget);
 	StartAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), StartSound);
@@ -61,7 +64,7 @@ void AUnderWorldGameMode::StartGame(int StartStage)
 			SpawnItem();
 			SpawnEnemy();
 
-			if (Stage == 3)
+			if (GameInstance->IsFinalStage())
 			{
 				TArray<AActor*> FoundActors;
 
@@ -112,7 +115,7 @@ void AUnderWorldGameMode::ClearGame()
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			if (Stage == 3)
+			if (GameInstance->IsFinalStage())
 			{
 				BGMAudioComponent->FadeOut(0.5f, 0);
 
@@ -125,7 +128,7 @@ void AUnderWorldGameMode::ClearGame()
 			else
 			{
 				FString NextLevelName = TEXT("Stage");
-				NextLevelName += FString::FromInt(Stage + 1);
+				NextLevelName += FString::FromInt(GameInstance->Stage + 1);
 				UGameplayStatics::OpenLevel(GetWorld(), FName(NextLevelName));
 			}
 		}), 10, false);
@@ -147,7 +150,7 @@ void AUnderWorldGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetCla
 
 void AUnderWorldGameMode::SpawnItem()
 {
-	if (Stage == 3)
+	if (GameInstance->IsFinalStage())
 	{
 		FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
@@ -191,7 +194,7 @@ void AUnderWorldGameMode::SpawnItem()
 		for (ASpawnPoint* a : OutsideItemSpawnPoints)
 			SpawnPoints.Add(a->GetActorTransform());
 
-		for (int i = 0; i < Stage; ++i) {
+		for (int i = 0; i < GameInstance->Stage; ++i) {
 			int SpawnIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
 			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::HAT], SpawnPoints[SpawnIndex], SpawnParams);
 			Item->SetLevel(i + 1);
@@ -199,7 +202,7 @@ void AUnderWorldGameMode::SpawnItem()
 			SpawnPoints.RemoveAt(SpawnIndex);
 		}
 
-		for (int i = 0; i < Stage; ++i) {
+		for (int i = 0; i < GameInstance->Stage; ++i) {
 			int SpawnIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
 			AItem* Item = GetWorld()->SpawnActor<AItem>(ItemClass[(int)EItemType::BAG], SpawnPoints[SpawnIndex], SpawnParams);
 			Item->SetLevel(i + 1);
@@ -235,7 +238,7 @@ void AUnderWorldGameMode::SpawnEnemy()
 			int SpawnIndex;
 			FTransform SpawnTransform;
 
-			if (Stage == 3)
+			if (GameInstance->IsFinalStage())
 			{
 				SpawnIndex = FMath::RandRange(0, EnemySpawnPoints.Num() - 1);
 				SpawnTransform = EnemySpawnPoints[SpawnIndex]->GetActorTransform();
@@ -250,7 +253,7 @@ void AUnderWorldGameMode::SpawnEnemy()
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 			SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 			EnemyCharacter = GetWorld()->SpawnActor<AEnemyCharacter>(EnemyCharacterClass, SpawnTransform, SpawnParams);
-			EnemyCharacter->StartGame(Stage);
+			EnemyCharacter->StartGame();
 
 			GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		}), 5, false);
@@ -263,7 +266,7 @@ void AUnderWorldGameMode::TeleportEnemy()
 
 	FTransform TeleportTransform;
 
-	if (Stage == 3)
+	if (GameInstance->IsFinalStage())
 	{
 		SetDoorReachPoint();
 
@@ -321,7 +324,7 @@ void AUnderWorldGameMode::CompleteMachineInstall()
 	}
 	else
 	{
-		if (Stage == 3 && MachineInstallCompleteCount >= (Machines.Num() / 2))
+		if (GameInstance->IsFinalStage() && MachineInstallCompleteCount >= (Machines.Num() / 2))
 		{
 			EnemyCharacter->GetCharacterMovement()->MaxWalkSpeed = 250;
 		}

@@ -27,14 +27,19 @@ AEnemyAIController::AEnemyAIController()
 	AIPerceptionComponent->SetSenseEnabled(AIPerceptionSignt->GetClass(), false);
 }
 
-void AEnemyAIController::StartGame(int StartStage)
+void AEnemyAIController::BeginPlay()
 {
-	Stage = StartStage;
+	Super::BeginPlay();
 
+	GameInstance = Cast<UUnderWorldGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+}
+
+void AEnemyAIController::StartGame()
+{
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			if (Stage == 3)
+			if (GameInstance->IsFinalStage())
 			{
 				RunBehaviorTree(BehaviorTree[1]);
 
@@ -106,7 +111,7 @@ void AEnemyAIController::CheckTeleport()
 
 void AEnemyAIController::FinishedTeleport()
 {
-	if (Stage != 3)
+	if (GameInstance->IsFinalStage() == false)
 		CheckTeleport();
 
 	GetBlackboardComponent()->SetValueAsBool("Teleport", true);

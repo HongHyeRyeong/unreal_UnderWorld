@@ -37,17 +37,16 @@ void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GameInstance = Cast<UUnderWorldGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	EnemyAIController = Cast<AEnemyAIController>(GetController());
 	SurvivorCharacter = Cast<ASurvivorCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
-void AEnemyCharacter::StartGame(int StartStage)
+void AEnemyCharacter::StartGame()
 {
-	Stage = StartStage;
+	EnemyAIController->StartGame();
 
-	EnemyAIController->StartGame(StartStage);
-
-	if (Stage == 3)
+	if (GameInstance->IsFinalStage())
 		SetMaxWalkSpeed(150);
 }
 
