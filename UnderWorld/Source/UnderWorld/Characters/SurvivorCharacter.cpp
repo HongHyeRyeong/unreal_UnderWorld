@@ -88,9 +88,9 @@ void ASurvivorCharacter::BeginPlay()
 	Stamina = MaxStamina;
 	InstallSpeed = InstallDefaultSpeed;
 
-	InventoryComponent->SurvivorCharacter = this;
 	HatMesh->SetVisibility(false);
 	BagMesh->SetVisibility(false);
+	InventoryComponent->Init();
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{

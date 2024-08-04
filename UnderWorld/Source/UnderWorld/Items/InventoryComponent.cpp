@@ -2,33 +2,27 @@
 
 #include "InventoryComponent.h"
 #include "Logging/LogMacros.h"
+#include "Kismet/GameplayStatics.h"
 #include "Item.h"
+#include "UnderWorldGameInstance.h"
 
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UInventoryComponent::Init()
+{
+	GameInstance = Cast<UUnderWorldGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	SurvivorCharacter = Cast<ASurvivorCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	if (GameInstance->PutItemMap.Contains(EItemType::HAT))
+		SurvivorCharacter->ItemPutOn(EItemType::HAT, GameInstance->PutItemMap[EItemType::HAT]);
+	if (GameInstance->PutItemMap.Contains(EItemType::BAG))
+		SurvivorCharacter->ItemPutOn(EItemType::BAG, GameInstance->PutItemMap[EItemType::BAG]);
 
 	keyMaxCount = 3;
 	GadgetMaxCount = 10;
-
-	for (int i = 0; i < (int)EItemType::MAX; ++i)
-	{
-		TArray<ItemInfo> Items;
-
-		switch ((EItemType)i)
-		{
-			case EItemType::KEY:
-			case EItemType::GADGET:
-			{
-				ItemInfo Item(0, 0);
-				Items.Add(Item);
-				break;
-			}
-		}
-
-		HaveItemMap.Add((EItemType)i, Items);
-		PutItemMap.Add((EItemType)i, 0);
-	}
 }
 
 void UInventoryComponent::BeginOverlap(AItem* Item)
@@ -58,8 +52,7 @@ bool UInventoryComponent::Input()
 				{
 					Pick = true;
 
-					ItemInfo Item(OverlapItem->Level, 1);
-					HaveItemMap[OverlapItem->Type].Add(Item);
+					GameInstance->HaveItemMap[OverlapItem->Type] |= 1 << OverlapItem->Level;
 					SurvivorCharacter->ItemPutOn(OverlapItem->Type, OverlapItem->Level);
 				}
 				break;
@@ -69,7 +62,7 @@ bool UInventoryComponent::Input()
 				if (GetHaveItemCount(EItemType::KEY, 0) < keyMaxCount)
 				{
 					Pick = true;
-					HaveItemMap[EItemType::KEY][0].Count++;
+					GameInstance->HaveItemMap[EItemType::KEY]++;
 				}
 				break;
 			}
@@ -78,7 +71,7 @@ bool UInventoryComponent::Input()
 				if (GetHaveItemCount(EItemType::GADGET, 0) < GadgetMaxCount)
 				{
 					Pick = true;
-					HaveItemMap[EItemType::GADGET][0].Count++;
+					GameInstance->HaveItemMap[EItemType::GADGET]++;
 				}
 				break;
 			}
@@ -96,16 +89,13 @@ bool UInventoryComponent::Input()
 
 void UInventoryComponent::PutOn(EItemType Type, int Level)
 {
-	PutItemMap[Type] = Level;
+	GameInstance->PutItemMap[Type] = Level;
 }
 
 void UInventoryComponent::Remove(EItemType Type, int Level)
 {
 	if (Type == EItemType::KEY || Type == EItemType::GADGET)
-	{
-		if (HaveItemMap[Type][0].Count > 0)
-			HaveItemMap[Type][0].Count--;
-	}
+		GameInstance->HaveItemMap[Type]--;
 }
 
 int UInventoryComponent::GetHaveItemCount(EItemType Type, int Level)
@@ -114,20 +104,15 @@ int UInventoryComponent::GetHaveItemCount(EItemType Type, int Level)
 	{
 	case EItemType::HAT:
 	case EItemType::BAG:
-	{
-		for (auto& Item : HaveItemMap[Type])
-			if (Item.Level == Level)
-				return Item.Count;
-		break;
-	}
+		return GameInstance->HaveItemMap[Type] & (1 << Level);
 	case EItemType::KEY:
 	case EItemType::GADGET:
-		return HaveItemMap[Type][0].Count;
+		return GameInstance->HaveItemMap[Type];
 	}
 	return 0;
 }
 
 int UInventoryComponent::GetPutOnItem(EItemType Type)
 {
-	return PutItemMap[Type];
+	return GameInstance->PutItemMap[Type];
 }

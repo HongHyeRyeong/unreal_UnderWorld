@@ -6,15 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "SurvivorCharacter.h"
 #include "Item.h"
+#include "UnderWorldGameInstance.h"
 #include "InventoryComponent.generated.h"
-
-struct ItemInfo 
-{
-	int Level;
-	int Count;
-
-	ItemInfo(int Level, int Count) :Level(Level), Count(Count) {};
-};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UNDERWORLD_API UInventoryComponent : public UActorComponent
@@ -25,12 +18,13 @@ protected:
 	virtual void BeginPlay();
 
 	UPROPERTY()
-	TArray<AItem*> PickItemArray;
-
-	TMap<EItemType, TArray<ItemInfo>> HaveItemMap;
+	UUnderWorldGameInstance* GameInstance;
 
 	UPROPERTY()
-	TMap<EItemType, int> PutItemMap;
+	ASurvivorCharacter* SurvivorCharacter;
+
+	UPROPERTY()
+	TArray<AItem*> PickItemArray;
 
 	UPROPERTY()
 	int keyMaxCount;
@@ -39,9 +33,7 @@ protected:
 	int GadgetMaxCount;
 
 public:
-	UPROPERTY()
-	ASurvivorCharacter* SurvivorCharacter;
-
+	void Init();
 	void BeginOverlap(AItem* Item);
 	void EndOverlap(AItem* Item);
 	bool Input();
