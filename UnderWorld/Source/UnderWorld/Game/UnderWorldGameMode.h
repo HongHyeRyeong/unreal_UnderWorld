@@ -91,6 +91,9 @@ protected:
 	UPROPERTY()
 	UAudioComponent* BGMAudioComponent;
 
+	UPROPERTY()
+	FTimerHandle SpawnItemTimerHandle;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void StartGame(int StartStage);

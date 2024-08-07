@@ -27,5 +27,8 @@ void UEnemyCharacterAnimInstance::FinishedActionAnimation()
 
 void UEnemyCharacterAnimInstance::FinishedAttackAnimation()
 {
+	if (Character->State != EEnemyCharacterState::ATTACK)
+		return;
+
 	Character->SetECharacterState(EEnemyCharacterState::REST);
 }

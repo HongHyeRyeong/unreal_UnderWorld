@@ -64,6 +64,10 @@ void AEnemyAIController::RestartGame()
 {
 	if (ChaseAudioComponent != nullptr)
 		ChaseAudioComponent->FadeOut(0.5f, 0);
+
+	AIPerceptionComponent->SetSenseEnabled(AIPerceptionSignt->GetClass(), false);
+	GetWorld()->GetTimerManager().ClearTimer(LineOfSightTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
 }
 
 void AEnemyAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -130,7 +134,7 @@ void AEnemyAIController::ComeInEnemy()
 	GetBlackboardComponent()->SetValueAsBool("HasLineOfSight", true);
 	GetBlackboardComponent()->SetValueAsObject("EnemyActor", Cast<AActor>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)));
 
-	if (ChaseAudioComponent->VolumeMultiplier == 0)
+	if (ChaseAudioComponent!= nullptr)
 		ChaseAudioComponent->FadeIn(0.5f);
 }
 

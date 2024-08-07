@@ -107,7 +107,8 @@ void AUnderWorldGameMode::RestartGame()
 void AUnderWorldGameMode::ClearGame()
 {
 	SurvivorCharacter->SetECharacterState(ECharacterState::CLEAR);
-	EnemyCharacter->SetECharacterState(EEnemyCharacterState::DIE);
+	EnemyCharacter->ClearGame();
+	GetWorld()->GetTimerManager().ClearTimer(SpawnItemTimerHandle);
 
 	ChangeMenuWidget(ClearWidget);
 	UGameplayStatics::PlaySound2D(GetWorld(), ClearSound);
@@ -121,8 +122,7 @@ void AUnderWorldGameMode::ClearGame()
 
 				GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 					{
-						UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("End")));
-						GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+						UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("End"))); 
 					}), 0.5f, false);
 			}
 			else
@@ -152,8 +152,7 @@ void AUnderWorldGameMode::SpawnItem()
 {
 	if (GameInstance->IsFinalStage())
 	{
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+		GetWorld()->GetTimerManager().SetTimer(SpawnItemTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
 				int RandomItemType = FMath::RandRange(0, 5);
 				int SpawnIndex = FMath::RandRange(0, ItemSpawnPoints.Num() - 1);

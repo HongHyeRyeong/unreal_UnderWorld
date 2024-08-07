@@ -393,6 +393,7 @@ void ASurvivorCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* Over
 	if (Enemy)
 	{
 		OnCounterAttackToEnemy.AddDynamic(Enemy, &AEnemyCharacter::AttackBySurvivor);
+		AttackCollision->SetGenerateOverlapEvents(false);
 	}
 }
 
@@ -441,10 +442,9 @@ void ASurvivorCharacter::SetECharacterState(ECharacterState NewState)
 	if (State == ECharacterState::MACHINE_INSTALL)
 		OnInputMachineInstall.Broadcast(false);
 
-	AttackCollision->SetGenerateOverlapEvents(NewState == ECharacterState::ATTACK);
-
 	State = NewState;
 	OnChangeState.Broadcast(State);
+	AttackCollision->SetGenerateOverlapEvents(State == ECharacterState::ATTACK);
 }
 
 bool ASurvivorCharacter::IsWalking() const

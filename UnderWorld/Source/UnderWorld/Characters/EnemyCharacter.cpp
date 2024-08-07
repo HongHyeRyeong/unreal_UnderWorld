@@ -55,6 +55,12 @@ void AEnemyCharacter::RestartGame()
 	EnemyAIController->RestartGame();
 }
 
+void AEnemyCharacter::ClearGame()
+{
+	SetECharacterState(EEnemyCharacterState::DIE);
+	EnemyAIController->RestartGame();
+}
+
 void AEnemyCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AttackCollision->SetGenerateOverlapEvents(false);
@@ -72,8 +78,8 @@ void AEnemyCharacter::OnBeginOverlapAttackCollision(UPrimitiveComponent* Overlap
 
 void AEnemyCharacter::AttackBySurvivor()
 {
-	SetECharacterState(EEnemyCharacterState::DOWN);
 	SurvivorCharacter->OnCounterAttackToEnemy.Clear();
+	SetECharacterState(EEnemyCharacterState::DOWN);
 }
 
 bool AEnemyCharacter::Teleport(FTransform Transform)
