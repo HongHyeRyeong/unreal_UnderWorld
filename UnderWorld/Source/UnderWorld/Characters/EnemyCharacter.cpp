@@ -119,6 +119,9 @@ void AEnemyCharacter::SetECharacterState(EEnemyCharacterState NewState)
 
 	AttackCollision->SetGenerateOverlapEvents(State == EEnemyCharacterState::ATTACK);
 	EnemyAIController->SetBlackboardActionValue(State != EEnemyCharacterState::LAND);
+
+	if (State != EEnemyCharacterState::LAND)
+		GetCharacterMovement()->StopMovementImmediately();
 }
 
 void AEnemyCharacter::SetMaxWalkSpeed(float MaxWalkSpeed)
