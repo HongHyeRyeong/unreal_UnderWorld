@@ -28,7 +28,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TArray<UMaterialInterface*> Materials;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(EditAnywhere)
