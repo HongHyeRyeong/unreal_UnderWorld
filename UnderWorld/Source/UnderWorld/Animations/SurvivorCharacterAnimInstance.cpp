@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SurvivorCharacterAnimInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "SurvivorCharacter.h"
 
 void USurvivorCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -16,17 +17,7 @@ void USurvivorCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (IsValid(Character))
 	{
 		CharacterState = Character->State;
-
-		LandState = 0;
-		if (Character->IsWalking())
-		{
-			LandState = 1;
-
-			if (Character->IsRunning())
-			{
-				LandState = 2;
-			}
-		}
+		CharacterSpeed = Character->GetCharacterMovement()->Velocity.Length();
 	}
 }
 

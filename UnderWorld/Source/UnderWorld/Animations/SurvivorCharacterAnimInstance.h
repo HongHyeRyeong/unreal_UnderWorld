@@ -19,8 +19,8 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState;
 
-	UPROPERTY(BlueprintReadWrite)
-	int LandState;
+	UPROPERTY(BlueprintReadOnly)
+	float CharacterSpeed;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
