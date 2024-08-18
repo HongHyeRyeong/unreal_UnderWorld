@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "Components/SphereComponent.h"
 #include "Components/AudioComponent.h"
+#include "MotionWarpingComponent.h"
 #include "Item.h"
 #include "SurvivorCharacter.generated.h"
 
@@ -15,6 +16,7 @@ class UCameraComponent;
 class UInventoryComponent;
 class UInputMappingContext;
 class UInputAction;
+class AMachine;
 struct FInputActionValue;
 
 UENUM(BlueprintType)
@@ -101,6 +103,9 @@ protected:
 	UInputAction* PrisonAction;
 
 	UPROPERTY()
+	UMotionWarpingComponent* MotionWarpingComponent;
+
+	UPROPERTY()
 	UStaticMeshComponent* HatMesh;
 
 	UPROPERTY()
@@ -163,6 +168,9 @@ protected:
 	UPROPERTY()
 	AItem* FocusItem;
 
+	UPROPERTY()
+	AMachine* InstallMachine;
+
 public:
 	UPROPERTY()
 	ECharacterState State = ECharacterState::LAND;
@@ -196,6 +204,9 @@ public:
 
 	UFUNCTION()
 	void SetECharacterState(ECharacterState NewState);
+
+	UFUNCTION()
+	void SetInstallMachine(AMachine* Machine);
 
 	UFUNCTION()
 	bool IsWalking() const;

@@ -28,8 +28,9 @@ public class UnderWorld : ModuleRules
 				"EnhancedInput",
 				"AIModule", 
 				"NavigationSystem", 
-				"UMG" 
-			}
+				"UMG",
+                "MotionWarping"
+            }
 		);
 	}
 }

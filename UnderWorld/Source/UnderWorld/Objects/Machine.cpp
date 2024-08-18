@@ -117,6 +117,7 @@ void AMachine::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
         }
 
         bIsOverlap = true;
+        SurvivorCharacter->SetInstallMachine(this);
     }
 }
 
@@ -126,6 +127,7 @@ void AMachine::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
     if (OtherCharacter)
     {
         bIsOverlap = false;
+        SurvivorCharacter->SetInstallMachine(NULL);
     }
 }
 

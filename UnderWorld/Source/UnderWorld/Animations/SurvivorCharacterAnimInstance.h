@@ -13,6 +13,9 @@ class UNDERWORLD_API USurvivorCharacterAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* MachineMontage;
+
 	UPROPERTY(BlueprintReadWrite)
 	ASurvivorCharacter* Character;
 

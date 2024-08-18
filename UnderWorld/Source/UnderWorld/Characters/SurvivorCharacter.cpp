@@ -14,6 +14,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "MotionWarpingComponent.h"
 #include "UnderWorldGameMode.h"
 #include "InventoryComponent.h"
 #include "EnemyCharacter.h"
@@ -77,6 +78,7 @@ ASurvivorCharacter::ASurvivorCharacter()
 	SpeedUpCollision->OnComponentEndOverlap.AddDynamic(this, &ASurvivorCharacter::OnEndOverlapSpeedUpCollision);
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("ItemInventory"));
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarping"));
 }
 
 void ASurvivorCharacter::BeginPlay()
@@ -443,8 +445,23 @@ void ASurvivorCharacter::SetECharacterState(ECharacterState NewState)
 		OnInputMachineInstall.Broadcast(false);
 
 	State = NewState;
-	OnChangeState.Broadcast(State);
-	AttackCollision->SetGenerateOverlapEvents(State == ECharacterState::ATTACK);
+	OnChangeState.Broadcast(NewState);
+	AttackCollision->SetGenerateOverlapEvents(NewState == ECharacterState::ATTACK);
+}
+
+void ASurvivorCharacter::SetInstallMachine(AMachine* Machine)
+{
+	InstallMachine = Machine;
+
+	if (InstallMachine != NULL)
+	{
+		FMotionWarpingTarget Target = {};
+		Target.Name = FName("Machine");
+		Target.Location = InstallMachine->GetActorLocation();// +FVector(0, -6, 0);
+		Target.Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), InstallMachine->GetActorLocation());
+
+		MotionWarpingComponent->AddOrUpdateWarpTarget(Target);
+	}
 }
 
 bool ASurvivorCharacter::IsWalking() const

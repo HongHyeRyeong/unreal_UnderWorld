@@ -16,6 +16,16 @@ void USurvivorCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (IsValid(Character))
 	{
+		if (CharacterState != Character->State && Character->State == ECharacterState::MACHINE_INSTALL)
+		{
+			Montage_Play(MachineMontage);
+		}
+
+		if (CharacterState != Character->State && Character->State != ECharacterState::MACHINE_INSTALL)
+		{
+			Montage_Stop(0.2f, MachineMontage);
+		}
+
 		CharacterState = Character->State;
 		CharacterSpeed = Character->GetCharacterMovement()->Velocity.Length();
 	}
