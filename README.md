@@ -31,7 +31,7 @@
 |![image](https://github.com/user-attachments/assets/596a0d01-1b7e-4802-9971-238fcaf01400)|![image](https://github.com/user-attachments/assets/5621d6b5-6b53-4b81-948f-e6f59a6306bd)|
 
 ### 살인마
-* 살인마는 텔레포터를 하며 기계 주변을 순회한다. 종종 덫을 설치하기도 한다.
+* 살인마는 텔레포트를 하며 기계 주변을 순회한다. 종종 덫을 설치하기도 한다.
 * 순회 중 플레이어를 발견하면 바로 추적을 시작한다.
 * 플레이어와 가까워지면 공격을 하며 이때 플레이어는 반격이 가능하다.
 
