@@ -48,6 +48,9 @@ void AUnderWorldGameMode::BeginPlay()
 
 void AUnderWorldGameMode::StartGame(int StartStage)
 {
+	if (GameInstance == nullptr)
+		GameInstance = Cast<UUnderWorldGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	GameInstance->Stage = StartStage;
 
 	ChangeMenuWidget(StartWidget);
