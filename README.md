@@ -9,6 +9,9 @@
 ## 다운로드
 https://drive.google.com/file/d/1hipUKr26XhzzvY9L8sQxOepl-rcc7nhw/view?usp=sharing
 
+## 플레이 영상
+https://www.youtube.com/watch?v=yPsJBLUX60Y
+
 ## 게임 설명
 플레이어가 생명력을 모두 소진하기 전까지 적을 피하며, 기계를 수리하여 탈출하는 서바이벌 게임이다.
 
