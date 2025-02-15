@@ -13,7 +13,7 @@ https://drive.google.com/file/d/1hipUKr26XhzzvY9L8sQxOepl-rcc7nhw/view?usp=shari
 https://www.youtube.com/watch?v=yPsJBLUX60Y
 
 ## 게임 설명
-플레이어가 생명력을 모두 소진하기 전까지 적을 피하며, 기계를 수리하여 탈출하는 서바이벌 게임이다.
+플레이어가 단 한명의 생존자가 되어, AI 살인마와 맞서 싸우며 탈출해 나가는 서바이벌 게임
 
 * 적을 피하거나 적의 공격에 반격하며, 동시에 주어진 임무를 수행해야 하는 플레이로부터 느낄 수 있는 스릴감.
 * 스테이지 별로 다른 장르로 변경되어, 플레이어의 빠른 적응이 필요하여 신선함과 재미를 느낄 수 있음.
