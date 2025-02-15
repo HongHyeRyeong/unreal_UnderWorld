@@ -91,6 +91,7 @@ void AUnderWorldGameMode::RestartGame()
 	EnemyCharacter->RestartGame();
 	UGameplayStatics::PlaySound2D(GetWorld(), RestartSound);
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.3f);
+	GetWorld()->GetTimerManager().ClearTimer(SpawnItemTimerHandle);
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
