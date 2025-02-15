@@ -7,7 +7,7 @@
 * 개발 환경: Unreal5, C++
 
 ## 다운로드
-https://drive.google.com/file/d/1uWNog9DWa5QFrkuv8jVwTwoECkZXOkNd/view?usp=sharing
+https://drive.google.com/file/d/1ufp5wJyXx65_9nHk-FMpiYgdMkhBEnGK/view?usp=drive_link
 
 ## 플레이 영상
 https://www.youtube.com/watch?v=yPsJBLUX60Y
