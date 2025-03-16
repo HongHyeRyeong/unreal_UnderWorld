@@ -10,7 +10,7 @@
 https://drive.google.com/file/d/1uvTK4OQ3ar3PFkZgXZmzfeoE5pTM_TZz/view?usp=drive_link
 
 ## 플레이 영상
-https://youtu.be/lmRwDRzb_As
+https://youtu.be/1oTq0oCk69s
 
 ## 게임 설명
 플레이어가 단 한명의 생존자가 되어, AI 살인마와 맞서 싸우며 탈출해 나가는 서바이벌 게임
